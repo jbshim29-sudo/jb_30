@@ -1,0 +1,25 @@
+# 분석 대상 유튜브 채널 목록
+# - channel_id(UC...) 우선 사용: 핸들 변경에도 안정적
+# - enabled: false 로 특정 채널 임시 제외 (비용 절감)
+channels:
+  - name: "삼프로TV 3PROTV"
+    channel_id: "@3protv"
+    enabled: true
+  - name: "815머니톡"
+    channel_id: "UCCG6BEYjfQMGzypJw2EJCDQ"
+    enabled: true
+  - name: "증시각도기TV"
+    channel_id: "UCdOjVxkj5JA0iDu3_xcsTyQ"
+    enabled: true
+  - name: "시황맨TV"
+    channel_id: "UCRCNBeNS8MrOwFV6h6Yjemw"
+    enabled: true
+  - name: "머니인더트랩"
+    channel_id: "UCtjj8T7n2_jS92pfMeWdoWQ"
+    enabled: true
+  - name: "경제사냥꾼"
+    channel_id: "UC7usMJDHmtbs_oegmzQKKMA"
+    enabled: true
+  - name: "이효석아카데미"
+    channel_id: "UCxvdCnvGODDyuvnELnLkQWw"
+    enabled: true

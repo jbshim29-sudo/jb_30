@@ -1,0 +1,61 @@
+# 파이프라인 전역 설정
+timezone: "Asia/Seoul"
+
+# 장 시간 (KST). 업로드 시각 기준 개장전/중/후 분류에 사용
+market:
+  open: "09:00"    # 이 시각 이전 업로드 = 개장전(pre)
+  close: "15:30"   # 이 시각 이후 업로드 = 개장후(post), 그 사이 = 개장중(during)
+
+# 유튜브 수집
+youtube:
+  # 채널당 최대 스캔 영상 수 (당일 필터 전 상한 - 안전장치)
+  max_scan_per_channel: 15
+  subtitle_langs: ["ko"]
+  # 최근 영상 없을 때 폴백: 최근 N시간 이내 업로드까지 포함 (0=당일만 엄격)
+  fallback_hours: 0
+
+# Whisper (자막 없는 영상 전사)
+whisper:
+  enabled: true
+  model: "small"        # tiny/base/small/medium/large-v3 (정확도↑ = 속도↓)
+  device: "cpu"
+  compute_type: "int8"
+  # 이 길이(초) 초과 무자막 영상은 전사 생략(비용/시간) → 제목·설명 폴백
+  max_duration_sec: 5400   # 90분
+
+# Claude 분석
+claude:
+  model: "claude-opus-4-8"        # 고품질 분석
+  summary_model: "claude-opus-4-8" # 개별 요약용 (저비용 원하면 haiku/sonnet 로 분리)
+  max_tokens: 4096
+  # 자막 1개 요약 시 입력 상한(문자). 초과 시 map-reduce 청크 분할
+  max_transcript_chars: 40000
+  chunk_chars: 12000
+
+# 종목/지수 (네이버금융 전용 - KRX 로그인 불필요)
+stocks:
+  top_n_marketcap: 5
+  naver_finance_base: "https://finance.naver.com/item/main.naver?code="
+  request_timeout_sec: 10
+  # 시총랭킹 스캔 페이지 수(시장별, 50종목/페이지). 언급종목 코드 매핑 범위.
+  # 20 = 상위 약 1000종목 커버. 소형주까지 필요하면 상향.
+  marketsum_pages: 20
+  # 종목명 별칭 사전 (구어체 → 정식 종목명)
+  aliases:
+    "삼전": "삼성전자"
+    "하이닉스": "SK하이닉스"
+    "엘지엔솔": "LG에너지솔루션"
+    "네이버": "NAVER"
+    "카카오뱅크": "카카오뱅크"
+    "현차": "현대차"
+    "기아차": "기아"
+
+# 경로
+paths:
+  data_dir: "data"
+  output_dir: "output"
+  templates_dir: "templates"
+
+# 대시보드
+dashboard:
+  open_after_build: true   # 빌드 후 브라우저 자동 오픈
