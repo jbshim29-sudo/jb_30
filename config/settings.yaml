@@ -27,7 +27,7 @@ whisper:
 claude:
   model: "claude-opus-4-8"        # 고품질 분석
   summary_model: "claude-opus-4-8" # 개별 요약용 (저비용 원하면 haiku/sonnet 로 분리)
-  max_tokens: 4096
+  max_tokens: 8000                 # A4 1장 상세요약 수용 (약 1,200~1,800자)
   # 자막 1개 요약 시 입력 상한(문자). 초과 시 map-reduce 청크 분할
   max_transcript_chars: 40000
   chunk_chars: 12000

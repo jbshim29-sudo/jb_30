@@ -1,5 +1,6 @@
-"""5단계: analysis.json + stocks.json → 단일 HTML 대시보드.
+"""5단계: analysis.json + stocks.json → 단일 HTML (대시보드 + 채널별 상세 리포트 통합).
 
+한 파일 안에 상단=종합 대시보드, 하단=채널별 상세 리포트(계정당 A4 1장).
 출력: output/dashboard_<date>.html
 """
 from __future__ import annotations
@@ -9,12 +10,13 @@ from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
-from .common import (BUCKET_LABELS, ROOT, data_dir_for, load_settings, log,
-                     output_dir, read_json, today_kst_str)
+from .common import (BUCKET_LABELS, ROOT, data_dir_for, load_channels,
+                     load_settings, log, output_dir, read_json, today_kst_str)
+
+_BORDER = {"pre": 0, "during": 1, "post": 2}
 
 
 def _fmt_won(v) -> str:
-    """원 단위 정수 → '조 억' 한국식."""
     if v is None:
         return "-"
     try:
@@ -31,7 +33,6 @@ def _fmt_won(v) -> str:
 
 
 def _fmt_eok(v) -> str:
-    """억원 단위 숫자(네이버 재무) → 표기."""
     if v is None:
         return "-"
     try:
@@ -51,7 +52,6 @@ def _fmt_pct(v) -> str:
 
 
 def _sign_class(v) -> str:
-    """한국식: 상승 red, 하락 blue."""
     if v is None:
         return "flat"
     if v > 0:
@@ -62,7 +62,6 @@ def _sign_class(v) -> str:
 
 
 def _num(v) -> str:
-    """정수는 천단위 콤마, 소수는 소수 둘째자리까지."""
     if v is None:
         return "-"
     try:
@@ -72,6 +71,32 @@ def _num(v) -> str:
     if f == int(f):
         return f"{int(f):,}"
     return f"{f:,.2f}"
+
+
+def _paragraphs(text: str) -> list[str]:
+    """줄글 → 문단 리스트. 빈 줄 우선, 없으면 줄바꿈 기준."""
+    if not text:
+        return []
+    text = text.replace("\r\n", "\n").strip()
+    parts = text.split("\n\n") if "\n\n" in text else text.split("\n")
+    return [p.strip() for p in parts if p.strip()]
+
+
+def _group_channels(videos: list[dict]) -> list[dict]:
+    """config 채널 순서로 그룹화. 영상 없는 채널 제외, 내부는 개장전→중→후 정렬."""
+    order = [c["name"] for c in load_channels()]
+    by_channel: dict[str, list] = {name: [] for name in order}
+    for v in videos:
+        by_channel.setdefault(v.get("channel", "기타"), []).append(v)
+    channels = []
+    for name, vids in by_channel.items():
+        if not vids:
+            continue
+        vids.sort(key=lambda x: _BORDER.get(x.get("bucket"), 1))
+        bkts = sorted({v.get("bucket", "during") for v in vids},
+                      key=lambda b: _BORDER.get(b, 1))
+        channels.append({"name": name, "videos": vids, "buckets": bkts, "count": len(vids)})
+    return channels
 
 
 def build(date_str: str | None = None) -> Path:
@@ -85,10 +110,11 @@ def build(date_str: str | None = None) -> Path:
         else {"indices": {}, "top5": {}, "mentioned": [], "base_date": date_str,
               "is_trading_day": False}
 
-    # 버킷별 영상 그룹
+    videos = analysis.get("videos", [])
     buckets = {"pre": [], "during": [], "post": []}
-    for v in analysis.get("videos", []):
+    for v in videos:
         buckets.get(v.get("bucket", "during"), buckets["during"]).append(v)
+    channels = _group_channels(videos)
 
     env = Environment(
         loader=FileSystemLoader(str(ROOT / settings["paths"]["templates_dir"])),
@@ -99,9 +125,10 @@ def build(date_str: str | None = None) -> Path:
     env.filters["pct"] = _fmt_pct
     env.filters["signcls"] = _sign_class
     env.filters["num"] = _num
+    env.filters["paras"] = _paragraphs
     env.filters["blabel"] = lambda b: BUCKET_LABELS.get(b, b)
 
-    tmpl = env.get_template("dashboard.html.j2")
+    tmpl = env.get_template("page.html.j2")
     html = tmpl.render(
         date=date_str,
         stocks=stocks,
@@ -110,12 +137,13 @@ def build(date_str: str | None = None) -> Path:
         bucket_order=["pre", "during", "post"],
         bucket_labels=BUCKET_LABELS,
         mentioned=stocks.get("mentioned", []),
-        video_count=len(analysis.get("videos", [])),
+        channels=channels,
+        video_count=len(videos),
     )
 
     out = output_dir(settings) / f"dashboard_{date_str}.html"
     out.write_text(html, encoding="utf-8")
-    log.info("대시보드 생성 → %s", out)
+    log.info("통합 페이지 생성 → %s", out)
 
     if settings.get("dashboard", {}).get("open_after_build"):
         try:

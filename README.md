@@ -8,15 +8,16 @@
 ```
 1) collect_youtube  yt-dlp: 채널 당일 영상 + ko 자막
 2) transcribe       자막 없는 영상 → faster-whisper 전사 (ffmpeg 필요)
-3) analyze          Claude Opus: 영상별 요약(줄글 상세요약 포함) + 종합 인사이트
+3) analyze          Claude Opus: 영상별 요약(A4 1장 줄글 상세요약 포함) + 종합 인사이트
 4) stocks           네이버금융 지수/시총/영업이익·PER (KRX 로그인 불필요)
-5) build_dashboard  Jinja2 → output/dashboard_<date>.html  (1장 종합 요약)
-6) build_report     Jinja2 → output/report_<date>.html     (채널별 상세 리포트)
+5) build_dashboard  Jinja2 → output/dashboard_<date>.html  (대시보드 + 채널별 리포트 통합)
 ```
 
-## 산출 페이지 2종
-- **종합 대시보드** (`dashboard_<date>.html`): 코스피/코스닥·시총 TOP5·개장전중후 카드·종목 테이블을 한 장에.
-- **채널별 상세 리포트** (`report_<date>.html`): 채널별로 읽으면 한 번에 이해되는 1~2페이지 줄글 요약. 채널명 헤더 + 개장전/중/후 배지. 두 페이지는 서로 링크로 연결됩니다.
+## 산출 페이지 (단일 HTML)
+`output/dashboard_<date>.html` 한 파일에 두 영역이 상단 고정 네비로 연결됩니다.
+- **① 종합 대시보드**: 코스피/코스닥·시총 TOP5·핵심 이슈·개장전중후 요약 카드·종목 펀더멘털 테이블.
+- **② 채널별 상세 리포트**: 계정별 A4 약 1장 분량의 줄글 요약(채널명 헤더 + 개장전/중/후 배지 + 목차).
+  브라우저 인쇄 시 `page-break`로 **계정당 1페이지**로 출력됩니다.
 
 ## 대상 채널
 삼프로TV · 815머니톡 · 증시각도기TV · 시황맨TV · 머니인더트랩 · 경제사냥꾼 · 이효석아카데미

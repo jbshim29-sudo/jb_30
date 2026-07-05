@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>경제 유튜브 종합 · {{ date }}</title>
+<style>
+  :root{
+    --bg:#f4f6fa; --card:#ffffff; --ink:#1a1d24; --muted:#6b7280; --line:#e5e8ef;
+    --accent:#2f5fe0; --up:#e0342b; --down:#1666d6; --flat:#6b7280;
+    --pre:#f59e0b; --during:#22c55e; --post:#a855f7;
+    --chip:#eef2fb; --shadow:0 1px 3px rgba(20,30,60,.08);
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0e1117; --card:#171b23; --ink:#e6e9f0; --muted:#9aa4b2; --line:#252b36;
+      --accent:#5b86f5; --up:#ff5b52; --down:#4d9bff; --flat:#9aa4b2;
+      --chip:#1e2530; --shadow:0 1px 3px rgba(0,0,0,.4);}
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:'Segoe UI','Malgun Gothic',system-ui,sans-serif;font-size:14px;line-height:1.55}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 18px 60px}
+  a{color:var(--accent);text-decoration:none} a:hover{text-decoration:underline}
+  h1{font-size:20px;margin:0}
+  h2.sec{font-size:16px;margin:26px 0 12px;padding-left:9px;border-left:4px solid var(--accent)}
+  .sub{color:var(--muted);font-size:12.5px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:12px;box-shadow:var(--shadow)}
+  .up{color:var(--up)} .down{color:var(--down)} .flat{color:var(--flat)}
+
+  /* 상단 고정 네비 */
+  .topnav{position:sticky;top:0;z-index:20;background:var(--bg);
+    border-bottom:1px solid var(--line);padding:9px 0;margin-bottom:6px}
+  .topnav .inner{max-width:1180px;margin:0 auto;padding:0 18px;display:flex;
+    gap:14px;align-items:center;flex-wrap:wrap;font-size:13px}
+  .topnav b{font-size:14px}
+  .topnav a{padding:2px 4px}
+
+  header.head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;
+    gap:12px;margin:10px 0 14px}
+  .idxrow{display:flex;gap:12px;flex-wrap:wrap}
+  .idx{padding:10px 16px;border-radius:12px;background:var(--card);border:1px solid var(--line);
+    box-shadow:var(--shadow);min-width:150px}
+  .idx .nm{font-size:12px;color:var(--muted)}
+  .idx .val{font-size:22px;font-weight:700}
+  .idx .chg{font-size:13px;font-weight:600}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+  @media(max-width:760px){.grid2{grid-template-columns:1fr}}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{background:var(--chip);border:1px solid var(--line);border-radius:999px;padding:3px 10px;font-size:12px}
+
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{padding:8px 10px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+  th:first-child,td:first-child,th.l,td.l{text-align:left}
+  thead th{color:var(--muted);font-weight:600;font-size:12px}
+  tbody tr:hover{background:var(--chip)}
+  .tblscroll{overflow-x:auto}
+
+  .pad{padding:14px 16px}
+  .issue{font-size:15px;font-weight:600;margin:4px 0;padding-left:20px;position:relative}
+  .issue::before{content:"▸";position:absolute;left:2px;color:var(--accent)}
+  ul.tight{margin:6px 0;padding-left:18px} ul.tight li{margin:3px 0}
+
+  .badge{display:inline-block;font-size:11.5px;font-weight:600;padding:2px 9px;border-radius:999px;color:#fff}
+  .badge.gray{background:var(--flat)}
+  .b-pre{background:var(--pre)} .b-during{background:var(--during)} .b-post{background:var(--post)}
+  .badge.ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+
+  /* 대시보드 장구분 카드 */
+  .bwrap{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+  @media(max-width:900px){.bwrap{grid-template-columns:1fr}}
+  .bcol h3{margin:0 0 8px;font-size:14px;display:flex;align-items:center;gap:6px}
+  .bdot{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .d-pre{background:var(--pre)}.d-during{background:var(--during)}.d-post{background:var(--post)}
+  .vidmini{padding:11px 13px;margin-bottom:10px}
+  .vidmini .vt{font-weight:600;font-size:13px;margin-bottom:3px}
+  .vidmini .vc{color:var(--muted);font-size:11.5px;margin-bottom:6px}
+  .vidmini ul{margin:5px 0;padding-left:16px;font-size:12.5px} .vidmini li{margin:2px 0}
+  .tag{display:inline-block;font-size:11px;padding:1px 7px;border-radius:6px;
+    background:var(--chip);border:1px solid var(--line);margin:2px 3px 0 0}
+  .tag.p{color:var(--up)} .tag.n{color:var(--down)}
+  .empty{color:var(--muted);font-size:12.5px;padding:8px 0}
+  .fnote{background:var(--chip);border:1px solid var(--line);border-radius:8px;
+    padding:8px 12px;font-size:12px;color:var(--muted);margin-top:8px}
+
+  /* ── 채널별 상세 리포트 ── */
+  .report{max-width:900px;margin:0 auto}
+  .toc{padding:12px 16px;margin-bottom:22px}
+  .toc h4{font-size:12px;margin:0 0 8px;color:var(--muted);letter-spacing:.4px}
+  .toc ol{margin:0;padding-left:20px} .toc li{margin:4px 0}
+  .toc .cnt{color:var(--muted);font-size:12px}
+
+  section.ch{margin-bottom:30px}
+  .chhead{background:var(--bg);padding:12px 0 8px;border-bottom:2px solid var(--accent);margin-bottom:16px}
+  .chhead .nm{font-size:20px;font-weight:800;letter-spacing:-.2px}
+  .chhead .meta{color:var(--muted);font-size:12.5px;margin-top:2px}
+  .chhead .badges{margin-top:6px;display:flex;gap:5px;flex-wrap:wrap}
+
+  article.vid{padding:22px 26px;margin-bottom:18px}
+  article.vid .vhead{display:flex;align-items:flex-start;gap:10px;justify-content:space-between;flex-wrap:wrap}
+  article.vid h3{font-size:17px;margin:0;line-height:1.4;flex:1;min-width:60%}
+  article.vid .when{color:var(--muted);font-size:12.5px;margin:4px 0 14px}
+  .prose{max-width:760px}
+  .prose p{margin:0 0 14px;font-size:15.5px;line-height:1.9;word-break:keep-all;overflow-wrap:break-word}
+  .prose p:last-child{margin-bottom:0}
+  .kv{margin-top:18px;padding-top:14px;border-top:1px dashed var(--line)}
+  .kv h4{font-size:12.5px;color:var(--muted);margin:0 0 6px}
+  .kv ul{margin:0 0 12px;padding-left:18px} .kv li{margin:3px 0;font-size:13.5px}
+  .fore{font-size:13.5px;margin-bottom:12px} .fore .dir{font-weight:700}
+  .tags{display:flex;flex-wrap:wrap;gap:5px}
+
+  footer{margin-top:28px;color:var(--muted);font-size:11.5px;text-align:center}
+
+  /* 인쇄: 계정당 1장 */
+  @media print{
+    body{background:#fff}
+    .topnav{display:none}
+    .card{box-shadow:none}
+    section.ch{page-break-before:always;break-before:page}
+    #report-top{page-break-before:always;break-before:page}
+    article.vid{page-break-inside:avoid;break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+
+<!-- 고정 네비 -->
+<div class="topnav"><div class="inner">
+  <b>📊 {{ date }}</b>
+  <a href="#dash">종합 대시보드</a>
+  <a href="#report-top">채널별 상세 리포트</a>
+  <span class="sub">· 영상 {{ video_count }}개</span>
+</div></div>
+
+<div class="wrap">
+
+  <!-- ══════════ 종합 대시보드 ══════════ -->
+  <header class="head" id="dash">
+    <div>
+      <h1>📊 경제 유튜브 종합 대시보드</h1>
+      <div class="sub">
+        {{ date }} · 시장 기준일 {{ stocks.base_date }}
+        {% if not stocks.is_trading_day %}<span class="badge gray">휴장/주말 — 직전 영업일</span>{% endif %}
+        · 분석 영상 {{ video_count }}개
+      </div>
+    </div>
+    <div class="idxrow">
+      {% set k = stocks.indices.get('kospi', {}) %}
+      {% set q = stocks.indices.get('kosdaq', {}) %}
+      <div class="idx"><div class="nm">코스피 KOSPI</div>
+        <div class="val {{ k.change_pct|signcls }}">{{ k.close|num }}</div>
+        <div class="chg {{ k.change_pct|signcls }}">{{ k.change_pct|pct }}</div></div>
+      <div class="idx"><div class="nm">코스닥 KOSDAQ</div>
+        <div class="val {{ q.change_pct|signcls }}">{{ q.close|num }}</div>
+        <div class="chg {{ q.change_pct|signcls }}">{{ q.change_pct|pct }}</div></div>
+    </div>
+  </header>
+
+  <div class="grid2">
+    {% for mkt, label in [('kospi','코스피 시총 TOP5'), ('kosdaq','코스닥 시총 TOP5')] %}
+    <div class="card pad">
+      <h2 class="sec" style="margin-top:0">{{ label }}</h2>
+      <div class="tblscroll"><table>
+        <thead><tr><th class="l">종목</th><th>시가총액</th><th>현재가</th><th>등락률</th></tr></thead>
+        <tbody>
+        {% for s in stocks.top5.get(mkt, []) %}
+          <tr><td class="l">{{ loop.index }}. {{ s.name }}</td>
+            <td>{{ s.market_cap|won }}</td><td>{{ s.price|num }}</td>
+            <td class="{{ s.change_pct|signcls }}">{{ s.change_pct|pct }}</td></tr>
+        {% else %}<tr><td class="l empty" colspan="4">데이터 없음</td></tr>{% endfor %}
+        </tbody>
+      </table></div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="sec">🔑 오늘의 핵심</h2>
+  <div class="card pad">
+    {% if overall.get('핵심이슈3줄') %}
+      {% for it in overall['핵심이슈3줄'] %}<div class="issue">{{ it }}</div>{% endfor %}
+    {% else %}<div class="empty">분석된 핵심 이슈가 없습니다.</div>{% endif %}
+    <div class="grid2" style="margin-top:12px">
+      <div><strong>🤝 컨센서스</strong><ul class="tight">
+        {% for c in overall.get('컨센서스', []) %}<li>{{ c }}</li>{% else %}<li class="empty">-</li>{% endfor %}</ul></div>
+      <div><strong>⚔️ 엇갈리는 시각</strong><ul class="tight">
+        {% for c in overall.get('엇갈리는시각', []) %}<li>{{ c }}</li>{% else %}<li class="empty">-</li>{% endfor %}</ul></div>
+    </div>
+  </div>
+
+  <h2 class="sec">🕘 개장전 · 개장중 · 개장후 (요약)</h2>
+  <div class="bwrap">
+    {% for b in bucket_order %}
+    <div class="bcol">
+      <h3><span class="bdot d-{{ b }}"></span>{{ b|blabel }} <span class="sub">({{ buckets[b]|length }})</span></h3>
+      {% for v in buckets[b] %}
+        <div class="card vidmini">
+          <div class="vt"><a href="{{ v.url }}" target="_blank">{{ v.title }}</a></div>
+          {% set dir = v.시장전망.방향 if v.시장전망 else '불명' %}
+          <div class="vc">{{ v.channel }} · 전망 {{ dir }}
+            {% if not v.from_subtitle %}· <span class="badge ghost">자막없음</span>{% endif %}</div>
+          <ul>{% for s in v.핵심요약 %}<li>{{ s }}</li>{% endfor %}</ul>
+          {% if v.언급종목 %}<div>{% for m in v.언급종목 %}
+            <span class="tag {{ 'p' if m.방향성=='긍정' else ('n' if m.방향성=='부정' else '') }}">{{ m.name }}{% if m.방향성 %}·{{ m.방향성 }}{% endif %}</span>
+          {% endfor %}</div>{% endif %}
+        </div>
+      {% else %}<div class="empty">해당 시간대 업로드 없음</div>{% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+
+  <h2 class="sec">📈 언급 종목 펀더멘털</h2>
+  <div class="card pad">
+    <div class="tblscroll"><table>
+      <thead><tr><th class="l">종목</th><th class="l">코드</th><th>시가총액</th><th>현재가</th>
+        <th>등락률</th><th>영업이익</th><th>매출액</th><th>PER</th><th>PBR</th><th>언급</th><th class="l">방향</th></tr></thead>
+      <tbody>
+      {% for m in mentioned %}
+        <tr><td class="l">{{ m.name }}</td><td class="l">{{ m.code or '-' }}</td>
+          <td>{{ m.market_cap|won }}</td><td>{{ m.price|num }}</td>
+          <td class="{{ m.change_pct|signcls }}">{{ m.change_pct|pct }}</td>
+          <td>{{ m.영업이익|eok }}</td><td>{{ m.매출액|eok }}</td>
+          <td>{{ m.per|num }}</td><td>{{ m.pbr|num }}</td><td>{{ m.mention_count }}</td>
+          <td class="l {{ 'up' if m.방향성=='긍정' else ('down' if m.방향성=='부정' else '') }}">{{ m.방향성 or '-' }}</td></tr>
+      {% else %}<tr><td class="l empty" colspan="11">언급된 종목이 없습니다.</td></tr>{% endfor %}
+      </tbody>
+    </table></div>
+    <div class="fnote">영업이익·매출액은 네이버금융 최근 연간 실적(억원), 시총·등락률은 {{ stocks.base_date }} 기준. 종목명 매핑은 자동 추정.</div>
+  </div>
+
+  <!-- ══════════ 채널별 상세 리포트 ══════════ -->
+  <h2 class="sec" id="report-top">📰 채널별 상세 리포트</h2>
+  <div class="report">
+    {% if channels %}
+    <nav class="card toc">
+      <h4>목차 — 계정별 상세 요약</h4>
+      <ol>
+        {% for ch in channels %}
+        <li><a href="#ch-{{ loop.index }}">{{ ch.name }}</a>
+          <span class="cnt">— {{ ch.count }}개
+            {% for b in ch.buckets %}<span class="badge b-{{ b }}">{{ b|blabel }}</span>{% endfor %}</span></li>
+        {% endfor %}
+      </ol>
+    </nav>
+
+    {% for ch in channels %}
+    <section class="ch" id="ch-{{ loop.index }}">
+      <div class="chhead">
+        <div class="nm">📺 {{ ch.name }}</div>
+        <div class="meta">당일 업로드 {{ ch.count }}개</div>
+        <div class="badges">{% for b in ch.buckets %}<span class="badge b-{{ b }}">{{ b|blabel }}</span>{% endfor %}</div>
+      </div>
+
+      {% for v in ch.videos %}
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="{{ v.url }}" target="_blank">{{ v.title }}</a></h3>
+          <span class="badge b-{{ v.bucket }}">{{ v.bucket|blabel }}</span>
+        </div>
+        <div class="when">
+          {% if v.upload_ts %}업로드 {{ v.upload_ts[11:16] }} · {% endif %}
+          {% if v.duration %}{{ (v.duration//60) }}분 · {% endif %}
+          {% if v.from_subtitle %}자막 기반{% else %}<span class="badge ghost">자막없음·제목기반</span>{% endif %}
+        </div>
+        <div class="prose">
+          {% set paras = (v.상세요약 or '')|paras %}
+          {% if paras %}{% for p in paras %}<p>{{ p }}</p>{% endfor %}
+          {% else %}{% for s in v.핵심요약 %}<p>{{ s }}</p>{% endfor %}{% endif %}
+        </div>
+        <div class="kv">
+          {% if v.핵심요약 %}<h4>핵심 포인트</h4>
+          <ul>{% for s in v.핵심요약 %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
+          {% if v.시장전망 %}{% set dir = v.시장전망.방향 %}
+          <div class="fore">📊 시장 전망:
+            <span class="dir {{ 'up' if dir=='강세' else ('down' if dir=='약세' else '') }}">{{ dir }}</span>
+            {% if v.시장전망.근거 %}— {{ v.시장전망.근거 }}{% endif %}</div>{% endif %}
+          {% if v.언급종목 %}<h4>언급 종목</h4>
+          <div class="tags">{% for m in v.언급종목 %}
+            <span class="tag {{ 'p' if m.방향성=='긍정' else ('n' if m.방향성=='부정' else '') }}">{{ m.name }}{% if m.방향성 %} · {{ m.방향성 }}{% endif %}</span>
+          {% endfor %}</div>{% endif %}
+        </div>
+      </article>
+      {% endfor %}
+    </section>
+    {% endfor %}
+    {% else %}
+    <div class="empty">당일 업로드된 영상이 없습니다.</div>
+    {% endif %}
+  </div>
+
+  <footer>자동 생성 · 경제 유튜브 종합(대시보드 + 채널별 리포트) · {{ date }}</footer>
+</div>
+</body>
+</html>
