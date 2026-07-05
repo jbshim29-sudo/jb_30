@@ -61,18 +61,24 @@ run.bat
 로컬 작업 스케줄러는 **PC가 켜져 있을 때만** 돕니다. 컴퓨터를 꺼도 갱신하려면
 클라우드에서 도는 **GitHub Actions**를 사용하세요(`.github/workflows/daily.yml`).
 
-- **스케줄:** 매일 KST **12·14·16·18·20·22시** (2시간 간격, 하루 6회).
-  cron 은 UTC 기준이라 `03,05,07,09,11,13`으로 설정되어 있음.
+- **스케줄:** 평일(월~금) KST **06~23시 매시간**(하루 18회). cron 은 UTC 기준 2줄로 분할
+  (`0 0-14 * * 1-5` + `0 21-23 * * 0-4`)되어 날짜경계까지 정확히 커버.
 - 매 실행: 파이프라인 → `public/index.html` 갱신 → 자동 커밋·푸시 → **Vercel 자동 재배포**.
-- **증분 분석:** 데이터 캐시로 같은 날 이전 실행 결과를 재사용, 새로 올라온 영상만 Claude 호출 → 비용 최소화.
 
-**필수 설정 (1회):**
-1. GitHub 저장소 → Settings → Secrets and variables → Actions → **New repository secret**
-   - Name: `ANTHROPIC_API_KEY`, Value: 실제 키
-2. Settings → Actions → General → Workflow permissions → **Read and write permissions** 체크(푸시 허용).
-3. Actions 탭에서 워크플로가 활성화됐는지 확인. 수동 실행은 **Run workflow** 버튼.
+### AI 분석 없이도 자동 동작 (API 키 선택사항)
+- **`ANTHROPIC_API_KEY`가 없으면** → **무분석 모드**로 동작: 코스피/코스닥·시총 TOP5 +
+  채널별 당일 영상 목록(제목·시각·링크·설명)만 표시. **시크릿 설정 불필요, 완전 자동.**
+- **키를 등록하면** → 다음 실행부터 영상 요약·시장전망·언급종목 분석이 자동으로 켜지고,
+  데이터 캐시로 새 영상만 분석해 비용을 최소화(증분 분석).
+  - 등록: Settings → Secrets and variables → Actions → **Secrets 탭** → New repository secret
+    → Name `ANTHROPIC_API_KEY` (※ "Environments"가 아니라 "Secrets"에 넣어야 함)
 
-> cron은 러너 부하에 따라 수 분 지연될 수 있습니다(정시 보장 아님). Whisper는 CI 속도를 위해 기본 생략(자막 있는 영상만 요약). 수동 실행 시 `run_whisper=true`로 켤 수 있음.
+**설정 (푸시 권한만 필수):**
+- Settings → Actions → General → Workflow permissions → **Read and write** 체크. (완료됨)
+- 수동 실행: Actions 탭 → 워크플로 선택 → **Run workflow**.
+
+> cron은 러너 부하에 따라 수 분 지연될 수 있습니다(정시 보장 아님).
+> yt-dlp가 클라우드(GitHub) IP에서 차단될 수 있으니 첫 실행 로그를 확인하세요.
 
 ## (선택) 로컬 실행 — 작업 스케줄러
 

@@ -9,10 +9,15 @@
 from __future__ import annotations
 
 import argparse
+import os
+
+from dotenv import load_dotenv
 
 from . import analyze as analyze_mod
 from . import build_dashboard, collect_youtube, stocks, transcribe
 from .common import log, today_kst_str
+
+load_dotenv()
 
 
 def run(date_str: str | None, skip_whisper: bool, only: str | None) -> None:
@@ -32,8 +37,12 @@ def run(date_str: str | None, skip_whisper: bool, only: str | None) -> None:
     elif "transcribe" in steps:
         log.info("[2/5] Whisper 생략(--skip-whisper)")
     if "analyze" in steps:
-        log.info("[3/5] Claude 분석")
-        analyze_mod.analyze(date_str)
+        if os.getenv("ANTHROPIC_API_KEY"):
+            log.info("[3/5] Claude 분석")
+            analyze_mod.analyze(date_str)
+        else:
+            log.info("[3/5] ANTHROPIC_API_KEY 없음 → AI 분석 생략 "
+                     "(시장데이터 + 영상목록 모드). 키 등록 시 자동 요약 활성화.")
     if "stocks" in steps:
         log.info("[4/5] 종목/지수 데이터")
         stocks.build_stocks(date_str)

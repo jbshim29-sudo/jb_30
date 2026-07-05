@@ -82,6 +82,11 @@
   .empty{color:var(--muted);font-size:12.5px;padding:8px 0}
   .fnote{background:var(--chip);border:1px solid var(--line);border-radius:8px;
     padding:8px 12px;font-size:12px;color:var(--muted);margin-top:8px}
+  .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;
+    padding:10px 14px;font-size:13px;margin:12px 0}
+  @media (prefers-color-scheme: dark){.notice{background:#2a1f14;border-color:#7c4a1e;color:#fed7aa}}
+  .vdesc{font-size:12px;color:var(--muted);margin:5px 0;line-height:1.6;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
   /* ── 채널별 상세 리포트 ── */
   .report{max-width:900px;margin:0 auto}
@@ -156,6 +161,11 @@
     </div>
   </header>
 
+  {% if no_analysis %}
+  <div class="notice">⚠️ <b>AI 분석 미적용 모드</b> — 시장 데이터와 채널별 영상 목록(제목·시각·설명)만 표시됩니다.
+    ANTHROPIC_API_KEY를 등록하면 다음 실행부터 영상 요약·전망·언급종목 분석이 자동 활성화됩니다.</div>
+  {% endif %}
+
   <div class="grid2">
     {% for mkt, label in [('kospi','코스피 시총 TOP5'), ('kosdaq','코스닥 시총 TOP5')] %}
     <div class="card pad">
@@ -196,9 +206,10 @@
         <div class="card vidmini">
           <div class="vt"><a href="{{ v.url }}" target="_blank">{{ v.title }}</a></div>
           {% set dir = v.시장전망.방향 if v.시장전망 else '불명' %}
-          <div class="vc">{{ v.channel }} · 전망 {{ dir }}
+          <div class="vc">{{ v.channel }}{% if v.핵심요약 or v.시장전망 %} · 전망 {{ dir }}{% endif %}
             {% if not v.from_subtitle %}· <span class="badge ghost">자막없음</span>{% endif %}</div>
-          <ul>{% for s in v.핵심요약 %}<li>{{ s }}</li>{% endfor %}</ul>
+          {% if v.핵심요약 %}<ul>{% for s in v.핵심요약 %}<li>{{ s }}</li>{% endfor %}</ul>
+          {% elif v.description %}<div class="vdesc">{{ v.description }}</div>{% endif %}
           {% if v.언급종목 %}<div>{% for m in v.언급종목 %}
             <span class="tag {{ 'p' if m.방향성=='긍정' else ('n' if m.방향성=='부정' else '') }}">{{ m.name }}{% if m.방향성 %}·{{ m.방향성 }}{% endif %}</span>
           {% endfor %}</div>{% endif %}
@@ -264,8 +275,11 @@
         <div class="prose">
           {% set paras = (v.상세요약 or '')|paras %}
           {% if paras %}{% for p in paras %}<p>{{ p }}</p>{% endfor %}
-          {% else %}{% for s in v.핵심요약 %}<p>{{ s }}</p>{% endfor %}{% endif %}
+          {% elif v.핵심요약 %}{% for s in v.핵심요약 %}<p>{{ s }}</p>{% endfor %}
+          {% elif v.description %}<p>{{ v.description }}</p>
+          {% else %}<p class="empty">요약 정보가 없습니다. (제목/링크만 제공)</p>{% endif %}
         </div>
+        {% if v.핵심요약 or v.시장전망 or v.언급종목 %}
         <div class="kv">
           {% if v.핵심요약 %}<h4>핵심 포인트</h4>
           <ul>{% for s in v.핵심요약 %}<li>{{ s }}</li>{% endfor %}</ul>{% endif %}
@@ -278,6 +292,7 @@
             <span class="tag {{ 'p' if m.방향성=='긍정' else ('n' if m.방향성=='부정' else '') }}">{{ m.name }}{% if m.방향성 %} · {{ m.방향성 }}{% endif %}</span>
           {% endfor %}</div>{% endif %}
         </div>
+        {% endif %}
       </article>
       {% endfor %}
     </section>

@@ -82,6 +82,11 @@
   .empty{color:var(--muted);font-size:12.5px;padding:8px 0}
   .fnote{background:var(--chip);border:1px solid var(--line);border-radius:8px;
     padding:8px 12px;font-size:12px;color:var(--muted);margin-top:8px}
+  .notice{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;
+    padding:10px 14px;font-size:13px;margin:12px 0}
+  @media (prefers-color-scheme: dark){.notice{background:#2a1f14;border-color:#7c4a1e;color:#fed7aa}}
+  .vdesc{font-size:12px;color:var(--muted);margin:5px 0;line-height:1.6;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
 
   /* ── 채널별 상세 리포트 ── */
   .report{max-width:900px;margin:0 auto}
@@ -129,7 +134,7 @@
   <b>📊 2026-07-05</b>
   <a href="#dash">종합 대시보드</a>
   <a href="#report-top">채널별 상세 리포트</a>
-  <span class="sub">· 영상 2개</span>
+  <span class="sub">· 영상 9개</span>
 </div></div>
 
 <div class="wrap">
@@ -141,7 +146,7 @@
       <div class="sub">
         2026-07-05 · 시장 기준일 2026-07-05
         <span class="badge gray">휴장/주말 — 직전 영업일</span>
-        · 분석 영상 2개
+        · 분석 영상 9개
       </div>
     </div>
     <div class="idxrow">
@@ -155,6 +160,11 @@
         <div class="chg up">+0.19%</div></div>
     </div>
   </header>
+
+  
+  <div class="notice">⚠️ <b>AI 분석 미적용 모드</b> — 시장 데이터와 채널별 영상 목록(제목·시각·설명)만 표시됩니다.
+    ANTHROPIC_API_KEY를 등록하면 다음 실행부터 영상 요약·전망·언급종목 분석이 자동 활성화됩니다.</div>
+  
 
   <div class="grid2">
     
@@ -222,14 +232,12 @@
 
   <h2 class="sec">🔑 오늘의 핵심</h2>
   <div class="card pad">
-    
-      <div class="issue">CPI 서프라이즈로 변동성 확대</div><div class="issue">반도체 주도 컨센서스 유지</div><div class="issue">2차전지는 시각 엇갈림</div>
-    
+    <div class="empty">분석된 핵심 이슈가 없습니다.</div>
     <div class="grid2" style="margin-top:12px">
       <div><strong>🤝 컨센서스</strong><ul class="tight">
-        <li>반도체 실적 모멘텀 긍정</li></ul></div>
+        <li class="empty">-</li></ul></div>
       <div><strong>⚔️ 엇갈리는 시각</strong><ul class="tight">
-        <li>2차전지 바닥 논쟁</li></ul></div>
+        <li class="empty">-</li></ul></div>
     </div>
   </div>
 
@@ -237,42 +245,278 @@
   <div class="bwrap">
     
     <div class="bcol">
-      <h3><span class="bdot d-pre"></span>개장전 <span class="sub">(1)</span></h3>
+      <h3><span class="bdot d-pre"></span>개장전 <span class="sub">(3)</span></h3>
       
         <div class="card vidmini">
-          <div class="vt"><a href="https://youtu.be/aaa" target="_blank">미국 CPI 쇼크, 반도체 대응 전략</a></div>
+          <div class="vt"><a href="https://www.youtube.com/watch?v=Ffifswczvx0" target="_blank">"수십조 매도 폭탄...!" 과연 그럴까? 계산해 봤습니다 | 빈센트 하나증권 애널리스트 [빈센트의 체크포인트]</a></div>
           
-          <div class="vc">삼프로TV 3PROTV · 전망 혼조
+          <div class="vc">삼프로TV 3PROTV
             </div>
-          <ul><li>CPI 예상 상회로 금리 인하 지연 우려</li><li>반도체 실적 모멘텀은 유효</li><li>환율 1400원 방어 관건</li></ul>
-          <div>
-            <span class="tag p">삼성전자·긍정</span>
+          <div class="vdesc">✨주식의 시대 제.대.로 배우자!✨6월 15일 이권희 대표 GRAND OPEN🚨
+🔥박병창&이선엽&김장열&이권희&장우진&박명석을 지금 만나보세요!
+👉https://bit.ly/46OIrLB 
+
+#삼프로TV #삼프로 #3protv</div>
           
-            <span class="tag p">SK하이닉스·긍정</span>
-          </div>
         </div>
-      
-    </div>
-    
-    <div class="bcol">
-      <h3><span class="bdot d-during"></span>개장중 <span class="sub">(0)</span></h3>
-      <div class="empty">해당 시간대 업로드 없음</div>
-    </div>
-    
-    <div class="bcol">
-      <h3><span class="bdot d-post"></span>개장후 <span class="sub">(1)</span></h3>
       
         <div class="card vidmini">
-          <div class="vt"><a href="https://youtu.be/bbb" target="_blank">2차전지 반등 가능할까</a></div>
+          <div class="vt"><a href="https://www.youtube.com/watch?v=mFoLZodiYu4" target="_blank">효성중공업, HD현대일렉트릭 장기계약 잭팟.. 모멘텀 문제는 없다. "주가 급락한 전력주, 제발 묻어두세요.ㅣ이권희 대표</a></div>
           
-          <div class="vc">이효석아카데미 · 전망 약세
-            · <span class="badge ghost">자막없음</span></div>
-          <ul><li>2차전지 수급 개선 신호</li><li>미국 IRA 정책 변수</li></ul>
-          <div>
-            <span class="tag ">LG에너지솔루션·중립</span>
-          </div>
+          <div class="vc">815머니톡
+            </div>
+          <div class="vdesc">(7월 2일 오후 1시 반 촬영)
+0:00 위즈웨이브 이권희 대표, MC-아이에셋 김태성 본부장
+
+0:42 메가 프로젝트에 대한 생각?
+
+4:13 SK하이닉스의 지역 투자 계획이 구체적이지 않은데?
+
+10:13 전력기기 비중을 투자 포트폴리오에서 어느 정도로 가져가야 하는지?
+
+16:46 반도체 업황이 변할 때 대응 전략?
+
+
+효성중공업,HD현대일렉트릭,전력주,SK하이닉스,메가프로젝트,반도체
+
+여현규-50,10,10
+-----------------------------------------------------
+📌 [815머니톡 공식카페] 매일 투자 자료가 공개됩니다!
+바로가기: https://fanding.me/815moneytalk
+
+◾ 815머니톡 전문가진의 칼럼 공개
+◾ 주말 ‘찐시황’ 전자책 제공
+◾ 회원 간 활발한 소통과 정보 교류까지!
+
+혼자 투자하지 마세요.
+지금 815머니톡 카페에서 시작하세요.
+--------------------------
+👉출연 신청, 광고&협업 문의  ad@815.co.kr
+👉815머니톡 자료 다운로드  https://cafe.naver.com/815moneytalk
+--------------------------</div>
+          
         </div>
       
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=0jQaphdtU1A" target="_blank">증시 전망대. 하반기 첫 대형 뉴스 예정. 반도체 고점 논란,  ETF 변수 팩트 정리, 향 후 시나리오. 3대 주체별 매집 종목, 수급 동향 분석. 해외 큰손들 한국 시각 바꿨다</a></div>
+          
+          <div class="vc">시황맨TV
+            </div>
+          <div class="vdesc">증시 전망대. 하반기 첫 대형 뉴스 예정. 반도체 고점 논란,  ETF 변수 팩트 정리, 향 후 시나리오. 3대 주체별 매집 종목, 수급 동향 분석. 해외 큰손들 한국 시각 바꿨다
+
+방송 요약
+최근 주요국 증시, 특징주 분석
+이번주 주요 증시 일정
+하반기 증시 결정할 초대형 뉴스 등장 예정. 
+반도체 고점 논란 내용, 팩트 정리, 
+주도주 및 증시 향 후 시나리오. 
+ETF 변수, 실제 증시 영향은
+3대 주체별 매집 종목 정리, 
+증시 자금 동향 분석. 
+해외 큰손들 한국 시각 바꿨다
+
+#삼성전자, #테슬라 ,#채권 ,#에코프로비엠 ,#sk하이닉스 ,#주식시황 ,#에코프로 ,#애플 ,#엔비디아 ,#국제유가 ,#증시전망 ,#환율 ,#국채금리 ,#마이크론테크,#코스닥 ,#엘앤에프 ,#미국주식,#해외증시 ,#다우지수 ,#마이크론테크 ,#채권금리 ,#LG에너지솔루션 ,#반도체주식 ,#HBM관련주 ,#FOMC ,#비트코인 ,#LG에너지솔루션 ,#가상화폐 ,#암호화폐 ,#셀트리온,#셀트리온제약 ,#ai관련주 ,#TSMC,#KB금융 ,#저PBR ,#밸류업 ,#기아 ,#한미반도체 ,#파월의장 ,#경기선행지수 ,#한미약품 ,#엘앤에프 , #태양광관련주 ,#구리관련주 ,#TSMC ,#PCE ,#대차대조표 ,#HLB ,#CPI ,#JP모건 ,#모건스탠리 ,#셀트리온 ,#삼성전자HBM ,#CPI ,#달러차트 ,#HLB ,#삼성전자HBM ,#미국고용지표  ,#알테오젠 ,#트럼프 ,#ISM제조업지수 ,#BTS ,#금투세 ,#모건스탠리 ,#밸류업지수 ,#북한 ,#고려아연 ,#금양 ,#엔달러 ,#엔캐리트레이드 ,#로봇관련주 ,#레인보우로보틱스 ,#딥시크 ,#DeepSeek ,#관세 ,#트럼프관세 ,#무역전쟁 ,#관세전쟁 ,#세법개정안 ,#스테이블코인 ,#주식양도세 ,#파운드리 ,#PPI ,#생산자물가지수 ,#한화오션 ,#양적긴축 ,#부동산정책 ,#부동산대책 ,#FOMC ,#APEC ,#관세협상 ,#ADR ,#HBM ,#HBM4 ,#마이클버리 ,#빅쇼트 ,#사이드카 ,#매출채권 ,#제미나이3 ,#TPU ,#오라클 ,#블루아울 ,#환헤지 ,#전략적환헤지, #베네수엘라 ,#SMR ,#BTS ,#블루아울 ,#IEEPA ,#국제비상경제권한법 ,#이란전쟁 ,#호르무즈 ,#호르무즈해협 ,#에이비엘바이오 ,#휴전 ,#스페이스X ,#젠슨황 ,#케빈워시 ,#마이크론실적</div>
+          
+        </div>
+      
+    </div>
+    
+    <div class="bcol">
+      <h3><span class="bdot d-during"></span>개장중 <span class="sub">(6)</span></h3>
+      
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=ePiHspNsNdc" target="_blank">"4년 뒤 한국 원전 올스톱?!" 72조짜리 재앙의 실체 | 김현권 고준위 방사성폐기물 관리위원회 [주말인터뷰]</a></div>
+          
+          <div class="vc">삼프로TV 3PROTV
+            </div>
+          <div class="vdesc">✨주식의 시대 제.대.로 배우자!✨6월 15일 이권희 대표 GRAND OPEN🚨
+🔥박병창&이선엽&김장열&이권희&장우진&박명석을 지금 만나보세요!
+👉https://bit.ly/46OIrLB 
+
+#삼프로TV #삼프로 #3protv</div>
+          
+        </div>
+      
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=lDv3eq6z5RM" target="_blank">2,500년 전 얼음 공주 미이라 온몸에 새겨진 문신의 충격적 진실 | 윤명철 사마르칸트 대학 교수 [주말인터뷰]</a></div>
+          
+          <div class="vc">삼프로TV 3PROTV
+            </div>
+          <div class="vdesc">윤명철 교수님과 함께 우리 민족의 뿌리를 찾아 떠나는 ✨알타이 문명 원정대✨가 곧 모집을 시작합니다!
+👉 https://bit.ly/4cr52kE
+
+🚨 지난 [유라시아 원정대]가 1~3차 모두 오픈 하루 만에 매진되었던 만큼, 이번 원정대도 빠른 마감이 예상됩니다.
+신청 기회를 놓치고 싶지 않다면 지금 바로 아래 링크에서 출시 알림을 신청해주세요!
+
+신청하기 👉 https://bit.ly/4cr52kE
+
+*출시 알림 신청 시, 정식 오픈되기 전 가장 먼저 문자로 알려드립니다.
+*투어 예상 일정은 9월 중순이며, 변경될 수 있습니다.
+*가벼운 수요 조사 형식이니 부담 없이 신청해주세요!
+
+#삼프로TV #삼프로 #3protv</div>
+          
+        </div>
+      
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=FT-INOnH88k" target="_blank">SK하이닉스 ADR상장의 민낯.. 한국 증시, 외인 이탈 더 커진다. / 국민연금, 국내 증시에만 올인 하면 안되는 이유ㅣ박정호 교수</a></div>
+          
+          <div class="vc">815머니톡
+            </div>
+          <div class="vdesc">(7월 3일 오후 3시 반 촬영)
+0:00 명지대학교 특임교수 박정호 교수, MC-아이에셋 김태성 본부장
+
+0:57 SK하이닉스의 미국 ADR 상장이 국내 증시에 미치는 영향?
+
+4:58 SK하이닉스의 ADR 상장 이후, 다른 대기업들도 ADR 상장을 고민?
+
+11:49 삼성전자와 SK하이닉스의 주주환원 정책은 어떻게 보나?
+
+16:38 잉여 현금을 다시 국내에 투자할까? 미국 테크 종목에 투자할까?
+
+
+SK하이닉스,ADR상장,삼성전자,한국증시,주주환원정책
+
+여현규-50,10,10
+-----------------------------------------------------
+📌 [815머니톡 공식카페] 매일 투자 자료가 공개됩니다!
+바로가기: https://fanding.me/815moneytalk
+
+◾ 815머니톡 전문가진의 칼럼 공개
+◾ 주말 ‘찐시황’ 전자책 제공
+◾ 회원 간 활발한 소통과 정보 교류까지!
+
+혼자 투자하지 마세요.
+지금 815머니톡 카페에서 시작하세요.
+--------------------------
+👉출연 신청, 광고&협업 문의  ad@815.co.kr
+👉815머니톡 자료 다운로드  https://cafe.naver.com/815moneytalk
+--------------------------</div>
+          
+        </div>
+      
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=IUtol7DUxFA" target="_blank">5년 간 메모리 수요 100배 증가.. 삼성전자 D램 3분기 20% 인상, 실적 얼마나 좋아질까? SK하이닉스는? | 오현진 팀장</a></div>
+          
+          <div class="vc">815머니톡
+            </div>
+          <div class="vdesc">(촬영 일시-2026년 7월 3일 오후 6시 '815머니쇼' 중에서)
+
+0:00 루체인베스트 오현진 팀장
+
+0:05 레버리지 상품 변동성의 보완책은?
+
+2:23 삼성전자 3분기 D램 가격 인상, 영향은?
+
+3:29 로봇·카메라 관련주, 피지컬 AI로 가는 과정일까?
+
+5:33 증권·은행주 실적 기대감, 지속될까?
+
+10:50 오늘 나온 이슈들을 통한 2차전지·반도체주의 전망은?
+
+15:59 호텔·엔터 주 실적, 성장할 가능성은?
+
+SK하이닉스,D램가격인상,카메라,로봇주,증권주,은행주,현대차,2차전지주,홈플러스,전공정장비주,호텔주,엔터주,
+
+남상선PD-30/05/30
+-----------------------------------------------------
+📌 [815머니톡 공식카페] 매일 투자 자료가 공개됩니다!
+바로가기: https://fanding.me/815moneytalk
+
+◾ 815머니톡 전문가진의 칼럼 공개
+◾ 주말 ‘찐시황’ 전자책 제공
+◾ 회원 간 활발한 소통과 정보 교류까지!
+
+혼자 투자하지 마세요.
+지금 815머니톡 카페에서 시작하세요.
+--------------------------
+👉출연 신청, 광고&협업 문의  ad@815.co.kr
+👉815머니톡 자료 다운로드  https://cafe.naver.com/815moneytalk
+--------------------------</div>
+          
+        </div>
+      
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=eCNMUFV4MWg" target="_blank">주가 상승이 끝날 때는 항상 같은 신호가 나왔습니다 (풀버전) | 김효진 신영증권 박사 [얘기좀합시다]</a></div>
+          
+          <div class="vc">머니인더트랩
+            </div>
+          <div class="vdesc">촬영일: 2026. 6. 25.
+
+시장이 오를 때마다
+"지금은 너무 늦었다",
+"버블 아니냐"는 말이 반복됩니다.
+
+그런데 정말 버블이라면
+과거와 같은 신호가 나타나고 있을까요?
+
+김효진 신영증권 박사는
+닷컴버블부터 지금의 AI 시장까지 비교하며
+버블이 끝날 때 나타나는 공통점과
+지금 투자자들이 반드시 확인해야 할 신호를 설명합니다.
+
+✔ 지금 삼성전자·SK하이닉스는 비싼 걸까?
+✔ AI 버블은 정말 끝을 향해 가고 있을까?
+✔ 강세장이 끝날 때 항상 나타났던 마지막 신호는?
+✔ 지금 시장에서 가장 중요한 것은 무엇일까?
+
+월요일 장이 열리기 전,
+한 번쯤 꼭 생각해볼 이야기입니다.
+
+여러분은 지금 시장을 버블이라고 보시나요?
+
+00:00 오프닝
+01:04 버블을 움직이는 것
+02:03 '포모(FOMO)'는 왜 더 강해졌나
+06:31 버블은 왜 계속 생겨나는가
+13:53 AI 버블 vs 닷컴버블
+18:27 버블장에서 가장 중요한 것
+20:08 삼성전자·SK하이닉스 쏠림, 정말 위험한 신호일까
+30:50 SK하이닉스 시총 역전, 고점 신호인가
+33:06 버블의 끝은 어떻게 알 수 있을까
+47:51 버블을 끝내는 마지막 변수
+
+🎤 함께해주신 분
+김효진 신영증권 박사
+
+🎬 만든 사람들
+서동주 미국 변호사 (진행)
+이재상 PD (기획)
+이영철, 박정은 PD (연출)
+
+#머니인더트랩 #머인트 #moneyinthetrap #얘기좀합시다 #김효진 #서동주 #삼성전자 #SK하이닉스 #하이닉스 #반도체 #주식투자 #AI #FOMO #포모</div>
+          
+        </div>
+      
+        <div class="card vidmini">
+          <div class="vt"><a href="https://www.youtube.com/watch?v=uPV-SqAj3Hg" target="_blank">급락후 반등, 반등후 급락 주가가 매일 발칵 뒤집히는 반도체! 앞으로는 '이렇게' 투자 하세요</a></div>
+          
+          <div class="vc">이효석아카데미
+            </div>
+          <div class="vdesc">🔍  SK하이닉스 밸류에이션 보러가기
+👉🏻  https://naver.me/5g4kII3q
+
+🔊 이효석 아카데미는 아래 링크에 소개된 공식 채널을 통해서만 여러분과 소통합니다.
+사칭 피해에 각별히 주의해주세요.
+👉🏻 https://linktr.ee/hsacademy_integrity
+
+🎓 [네프콘] 네이버 프리미엄콘텐츠 전체 1위 이효석 아카데미🥇
+바쁜 투자자를 위한 알짜배기 투자 정보 👉🏻 https://bit.ly/45jA33C
+
+✅ [텔레그램] 투자에 도움 되는 생생한 정보 체크 👉🏻 https://bit.ly/44YOM3Y
+✅ 비즈니스/광고/협업 문의 : contact@hs-academy.kr
+
+📆 촬영일 : 07.03
+
+#sk하이닉스 #반도체 #반도체주식 #삼성전자 #메타 #마이크론 #meta #하이닉스 #하닉 #삼전닉스 #hbm #ai</div>
+          
+        </div>
+      
+    </div>
+    
+    <div class="bcol">
+      <h3><span class="bdot d-post"></span>개장후 <span class="sub">(0)</span></h3>
+      <div class="empty">해당 시간대 업로드 없음</div>
     </div>
     
   </div>
@@ -283,28 +527,7 @@
       <thead><tr><th class="l">종목</th><th class="l">코드</th><th>시가총액</th><th>현재가</th>
         <th>등락률</th><th>영업이익</th><th>매출액</th><th>PER</th><th>PBR</th><th>언급</th><th class="l">방향</th></tr></thead>
       <tbody>
-      
-        <tr><td class="l">삼성전자</td><td class="l">005930</td>
-          <td>1809조 4,232억</td><td>309,500</td>
-          <td class="up">+8.22%</td>
-          <td>43.6조</td><td>333.6조</td>
-          <td>25.02</td><td>4.30</td><td>1</td>
-          <td class="l up">긍정</td></tr>
-      
-        <tr><td class="l">SK하이닉스</td><td class="l">000660</td>
-          <td>1728조 3,032억</td><td>2,425,000</td>
-          <td class="up">+10.88%</td>
-          <td>47.2조</td><td>97.1조</td>
-          <td>23.43</td><td>10.20</td><td>1</td>
-          <td class="l up">긍정</td></tr>
-      
-        <tr><td class="l">LG에너지솔루션</td><td class="l">373220</td>
-          <td>84조 8,250억</td><td>362,500</td>
-          <td class="up">+2.40%</td>
-          <td>1.3조</td><td>23.7조</td>
-          <td>-52.91</td><td>3.83</td><td>1</td>
-          <td class="l ">중립</td></tr>
-      
+      <tr><td class="l empty" colspan="11">언급된 종목이 없습니다.</td></tr>
       </tbody>
     </table></div>
     <div class="fnote">영업이익·매출액은 네이버금융 최근 연간 실적(억원), 시총·등락률은 2026-07-05 기준. 종목명 매핑은 자동 추정.</div>
@@ -319,12 +542,24 @@
       <ol>
         
         <li><a href="#ch-1">삼프로TV 3PROTV</a>
+          <span class="cnt">— 3개
+            <span class="badge b-pre">개장전</span><span class="badge b-during">개장중</span></span></li>
+        
+        <li><a href="#ch-2">815머니톡</a>
+          <span class="cnt">— 3개
+            <span class="badge b-pre">개장전</span><span class="badge b-during">개장중</span></span></li>
+        
+        <li><a href="#ch-3">시황맨TV</a>
           <span class="cnt">— 1개
             <span class="badge b-pre">개장전</span></span></li>
         
-        <li><a href="#ch-2">이효석아카데미</a>
+        <li><a href="#ch-4">머니인더트랩</a>
           <span class="cnt">— 1개
-            <span class="badge b-post">개장후</span></span></li>
+            <span class="badge b-during">개장중</span></span></li>
+        
+        <li><a href="#ch-5">이효석아카데미</a>
+          <span class="cnt">— 1개
+            <span class="badge b-during">개장중</span></span></li>
         
       </ol>
     </nav>
@@ -333,6 +568,242 @@
     <section class="ch" id="ch-1">
       <div class="chhead">
         <div class="nm">📺 삼프로TV 3PROTV</div>
+        <div class="meta">당일 업로드 3개</div>
+        <div class="badges"><span class="badge b-pre">개장전</span><span class="badge b-during">개장중</span></div>
+      </div>
+
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=Ffifswczvx0" target="_blank">"수십조 매도 폭탄...!" 과연 그럴까? 계산해 봤습니다 | 빈센트 하나증권 애널리스트 [빈센트의 체크포인트]</a></h3>
+          <span class="badge b-pre">개장전</span>
+        </div>
+        <div class="when">
+          업로드 08:00 · 
+          38분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>✨주식의 시대 제.대.로 배우자!✨6월 15일 이권희 대표 GRAND OPEN🚨
+🔥박병창&이선엽&김장열&이권희&장우진&박명석을 지금 만나보세요!
+👉https://bit.ly/46OIrLB 
+
+#삼프로TV #삼프로 #3protv</p>
+          
+        </div>
+        
+      </article>
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=ePiHspNsNdc" target="_blank">"4년 뒤 한국 원전 올스톱?!" 72조짜리 재앙의 실체 | 김현권 고준위 방사성폐기물 관리위원회 [주말인터뷰]</a></h3>
+          <span class="badge b-during">개장중</span>
+        </div>
+        <div class="when">
+          업로드 13:00 · 
+          57분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>✨주식의 시대 제.대.로 배우자!✨6월 15일 이권희 대표 GRAND OPEN🚨
+🔥박병창&이선엽&김장열&이권희&장우진&박명석을 지금 만나보세요!
+👉https://bit.ly/46OIrLB 
+
+#삼프로TV #삼프로 #3protv</p>
+          
+        </div>
+        
+      </article>
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=lDv3eq6z5RM" target="_blank">2,500년 전 얼음 공주 미이라 온몸에 새겨진 문신의 충격적 진실 | 윤명철 사마르칸트 대학 교수 [주말인터뷰]</a></h3>
+          <span class="badge b-during">개장중</span>
+        </div>
+        <div class="when">
+          업로드 11:00 · 
+          48분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>윤명철 교수님과 함께 우리 민족의 뿌리를 찾아 떠나는 ✨알타이 문명 원정대✨가 곧 모집을 시작합니다!
+👉 https://bit.ly/4cr52kE
+
+🚨 지난 [유라시아 원정대]가 1~3차 모두 오픈 하루 만에 매진되었던 만큼, 이번 원정대도 빠른 마감이 예상됩니다.
+신청 기회를 놓치고 싶지 않다면 지금 바로 아래 링크에서 출시 알림을 신청해주세요!
+
+신청하기 👉 https://bit.ly/4cr52kE
+
+*출시 알림 신청 시, 정식 오픈되기 전 가장 먼저 문자로 알려드립니다.
+*투어 예상 일정은 9월 중순이며, 변경될 수 있습니다.
+*가벼운 수요 조사 형식이니 부담 없이 신청해주세요!
+
+#삼프로TV #삼프로 #3protv</p>
+          
+        </div>
+        
+      </article>
+      
+    </section>
+    
+    <section class="ch" id="ch-2">
+      <div class="chhead">
+        <div class="nm">📺 815머니톡</div>
+        <div class="meta">당일 업로드 3개</div>
+        <div class="badges"><span class="badge b-pre">개장전</span><span class="badge b-during">개장중</span></div>
+      </div>
+
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=mFoLZodiYu4" target="_blank">효성중공업, HD현대일렉트릭 장기계약 잭팟.. 모멘텀 문제는 없다. "주가 급락한 전력주, 제발 묻어두세요.ㅣ이권희 대표</a></h3>
+          <span class="badge b-pre">개장전</span>
+        </div>
+        <div class="when">
+          업로드 08:30 · 
+          20분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>(7월 2일 오후 1시 반 촬영)
+0:00 위즈웨이브 이권희 대표, MC-아이에셋 김태성 본부장
+
+0:42 메가 프로젝트에 대한 생각?
+
+4:13 SK하이닉스의 지역 투자 계획이 구체적이지 않은데?
+
+10:13 전력기기 비중을 투자 포트폴리오에서 어느 정도로 가져가야 하는지?
+
+16:46 반도체 업황이 변할 때 대응 전략?
+
+
+효성중공업,HD현대일렉트릭,전력주,SK하이닉스,메가프로젝트,반도체
+
+여현규-50,10,10
+-----------------------------------------------------
+📌 [815머니톡 공식카페] 매일 투자 자료가 공개됩니다!
+바로가기: https://fanding.me/815moneytalk
+
+◾ 815머니톡 전문가진의 칼럼 공개
+◾ 주말 ‘찐시황’ 전자책 제공
+◾ 회원 간 활발한 소통과 정보 교류까지!
+
+혼자 투자하지 마세요.
+지금 815머니톡 카페에서 시작하세요.
+--------------------------
+👉출연 신청, 광고&협업 문의  ad@815.co.kr
+👉815머니톡 자료 다운로드  https://cafe.naver.com/815moneytalk
+--------------------------</p>
+          
+        </div>
+        
+      </article>
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=FT-INOnH88k" target="_blank">SK하이닉스 ADR상장의 민낯.. 한국 증시, 외인 이탈 더 커진다. / 국민연금, 국내 증시에만 올인 하면 안되는 이유ㅣ박정호 교수</a></h3>
+          <span class="badge b-during">개장중</span>
+        </div>
+        <div class="when">
+          업로드 13:00 · 
+          22분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>(7월 3일 오후 3시 반 촬영)
+0:00 명지대학교 특임교수 박정호 교수, MC-아이에셋 김태성 본부장
+
+0:57 SK하이닉스의 미국 ADR 상장이 국내 증시에 미치는 영향?
+
+4:58 SK하이닉스의 ADR 상장 이후, 다른 대기업들도 ADR 상장을 고민?
+
+11:49 삼성전자와 SK하이닉스의 주주환원 정책은 어떻게 보나?
+
+16:38 잉여 현금을 다시 국내에 투자할까? 미국 테크 종목에 투자할까?
+
+
+SK하이닉스,ADR상장,삼성전자,한국증시,주주환원정책
+
+여현규-50,10,10
+-----------------------------------------------------
+📌 [815머니톡 공식카페] 매일 투자 자료가 공개됩니다!
+바로가기: https://fanding.me/815moneytalk
+
+◾ 815머니톡 전문가진의 칼럼 공개
+◾ 주말 ‘찐시황’ 전자책 제공
+◾ 회원 간 활발한 소통과 정보 교류까지!
+
+혼자 투자하지 마세요.
+지금 815머니톡 카페에서 시작하세요.
+--------------------------
+👉출연 신청, 광고&협업 문의  ad@815.co.kr
+👉815머니톡 자료 다운로드  https://cafe.naver.com/815moneytalk
+--------------------------</p>
+          
+        </div>
+        
+      </article>
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=IUtol7DUxFA" target="_blank">5년 간 메모리 수요 100배 증가.. 삼성전자 D램 3분기 20% 인상, 실적 얼마나 좋아질까? SK하이닉스는? | 오현진 팀장</a></h3>
+          <span class="badge b-during">개장중</span>
+        </div>
+        <div class="when">
+          업로드 10:30 · 
+          19분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>(촬영 일시-2026년 7월 3일 오후 6시 '815머니쇼' 중에서)
+
+0:00 루체인베스트 오현진 팀장
+
+0:05 레버리지 상품 변동성의 보완책은?
+
+2:23 삼성전자 3분기 D램 가격 인상, 영향은?
+
+3:29 로봇·카메라 관련주, 피지컬 AI로 가는 과정일까?
+
+5:33 증권·은행주 실적 기대감, 지속될까?
+
+10:50 오늘 나온 이슈들을 통한 2차전지·반도체주의 전망은?
+
+15:59 호텔·엔터 주 실적, 성장할 가능성은?
+
+SK하이닉스,D램가격인상,카메라,로봇주,증권주,은행주,현대차,2차전지주,홈플러스,전공정장비주,호텔주,엔터주,
+
+남상선PD-30/05/30
+-----------------------------------------------------
+📌 [815머니톡 공식카페] 매일 투자 자료가 공개됩니다!
+바로가기: https://fanding.me/815moneytalk
+
+◾ 815머니톡 전문가진의 칼럼 공개
+◾ 주말 ‘찐시황’ 전자책 제공
+◾ 회원 간 활발한 소통과 정보 교류까지!
+
+혼자 투자하지 마세요.
+지금 815머니톡 카페에서 시작하세요.
+--------------------------
+👉출연 신청, 광고&협업 문의  ad@815.co.kr
+👉815머니톡 자료 다운로드  https://cafe.naver.com/815moneytalk
+--------------------------</p>
+          
+        </div>
+        
+      </article>
+      
+    </section>
+    
+    <section class="ch" id="ch-3">
+      <div class="chhead">
+        <div class="nm">📺 시황맨TV</div>
         <div class="meta">당일 업로드 1개</div>
         <div class="badges"><span class="badge b-pre">개장전</span></div>
       </div>
@@ -340,72 +811,147 @@
       
       <article class="card vid">
         <div class="vhead">
-          <h3><a href="https://youtu.be/aaa" target="_blank">미국 CPI 쇼크, 반도체 대응 전략</a></h3>
+          <h3><a href="https://www.youtube.com/watch?v=0jQaphdtU1A" target="_blank">증시 전망대. 하반기 첫 대형 뉴스 예정. 반도체 고점 논란,  ETF 변수 팩트 정리, 향 후 시나리오. 3대 주체별 매집 종목, 수급 동향 분석. 해외 큰손들 한국 시각 바꿨다</a></h3>
           <span class="badge b-pre">개장전</span>
         </div>
         <div class="when">
-          업로드 07:40 · 
-          60분 · 
+          업로드 06:49 · 
+          21분 · 
           자막 기반
         </div>
         <div class="prose">
           
-          <p>미국 6월 소비자물가지수(CPI)가 시장 예상치를 웃돌면서 연준의 금리 인하 시점이 뒤로 밀릴 수 있다는 우려가 커졌다. 진행자는 이번 지표가 헤드라인보다 근원물가에서 끈적임이 확인된 점을 강조했다.</p><p>다만 반도체 업종에 대해서는 여전히 긍정적 시각을 유지했다. HBM 수요가 견조하고 하반기 실적 모멘텀이 살아 있어, 거시 불확실성에도 불구하고 주도주 지위는 유지될 것으로 봤다.</p><p>환율은 1,400원 방어 여부가 단기 분수령이다. 원화 약세가 외국인 수급에 부담을 주는 만큼, 당분간 지수는 종목 장세로 대응할 것을 권했다.</p>
+          <p>증시 전망대. 하반기 첫 대형 뉴스 예정. 반도체 고점 논란,  ETF 변수 팩트 정리, 향 후 시나리오. 3대 주체별 매집 종목, 수급 동향 분석. 해외 큰손들 한국 시각 바꿨다
+
+방송 요약
+최근 주요국 증시, 특징주 분석
+이번주 주요 증시 일정
+하반기 증시 결정할 초대형 뉴스 등장 예정. 
+반도체 고점 논란 내용, 팩트 정리, 
+주도주 및 증시 향 후 시나리오. 
+ETF 변수, 실제 증시 영향은
+3대 주체별 매집 종목 정리, 
+증시 자금 동향 분석. 
+해외 큰손들 한국 시각 바꿨다
+
+#삼성전자, #테슬라 ,#채권 ,#에코프로비엠 ,#sk하이닉스 ,#주식시황 ,#에코프로 ,#애플 ,#엔비디아 ,#국제유가 ,#증시전망 ,#환율 ,#국채금리 ,#마이크론테크,#코스닥 ,#엘앤에프 ,#미국주식,#해외증시 ,#다우지수 ,#마이크론테크 ,#채권금리 ,#LG에너지솔루션 ,#반도체주식 ,#HBM관련주 ,#FOMC ,#비트코인 ,#LG에너지솔루션 ,#가상화폐 ,#암호화폐 ,#셀트리온,#셀트리온제약 ,#ai관련주 ,#TSMC,#KB금융 ,#저PBR ,#밸류업 ,#기아 ,#한미반도체 ,#파월의장 ,#경기선행지수 ,#한미약품 ,#엘앤에프 , #태양광관련주 ,#구리관련주 ,#TSMC ,#PCE ,#대차대조표 ,#HLB ,#CPI ,#JP모건 ,#모건스탠리 ,#셀트리온 ,#삼성전자HBM ,#CPI ,#달러차트 ,#HLB ,#삼성전자HBM ,#미국고용지표  ,#알테오젠 ,#트럼프 ,#ISM제조업지수 ,#BTS ,#금투세 ,#모건스탠리 ,#밸류업지수 ,#북한 ,#고려아연 ,#금양 ,#엔달러 ,#엔캐리트레이드 ,#로봇관련주 ,#레인보우로보틱스 ,#딥시크 ,#DeepSeek ,#관세 ,#트럼프관세 ,#무역전쟁 ,#관세전쟁 ,#세법개정안 ,#스테이블코인 ,#주식양도세 ,#파운드리 ,#PPI ,#생산자물가지수 ,#한화오션 ,#양적긴축 ,#부동산정책 ,#부동산대책 ,#FOMC ,#APEC ,#관세협상 ,#ADR ,#HBM ,#HBM4 ,#마이클버리 ,#빅쇼트 ,#사이드카 ,#매출채권 ,#제미나이3 ,#TPU ,#오라클 ,#블루아울 ,#환헤지 ,#전략적환헤지, #베네수엘라 ,#SMR ,#BTS ,#블루아울 ,#IEEPA ,#국제비상경제권한법 ,#이란전쟁 ,#호르무즈 ,#호르무즈해협 ,#에이비엘바이오 ,#휴전 ,#스페이스X ,#젠슨황 ,#케빈워시 ,#마이크론실적</p>
           
         </div>
-        <div class="kv">
-          <h4>핵심 포인트</h4>
-          <ul><li>CPI 예상 상회로 금리 인하 지연 우려</li><li>반도체 실적 모멘텀은 유효</li><li>환율 1400원 방어 관건</li></ul>
-          
-          <div class="fore">📊 시장 전망:
-            <span class="dir ">혼조</span>
-            — 거시 부담 vs 실적 기대 공존</div>
-          <h4>언급 종목</h4>
-          <div class="tags">
-            <span class="tag p">삼성전자 · 긍정</span>
-          
-            <span class="tag p">SK하이닉스 · 긍정</span>
-          </div>
-        </div>
+        
       </article>
       
     </section>
     
-    <section class="ch" id="ch-2">
+    <section class="ch" id="ch-4">
       <div class="chhead">
-        <div class="nm">📺 이효석아카데미</div>
+        <div class="nm">📺 머니인더트랩</div>
         <div class="meta">당일 업로드 1개</div>
-        <div class="badges"><span class="badge b-post">개장후</span></div>
+        <div class="badges"><span class="badge b-during">개장중</span></div>
       </div>
 
       
       <article class="card vid">
         <div class="vhead">
-          <h3><a href="https://youtu.be/bbb" target="_blank">2차전지 반등 가능할까</a></h3>
-          <span class="badge b-post">개장후</span>
+          <h3><a href="https://www.youtube.com/watch?v=eCNMUFV4MWg" target="_blank">주가 상승이 끝날 때는 항상 같은 신호가 나왔습니다 (풀버전) | 김효진 신영증권 박사 [얘기좀합시다]</a></h3>
+          <span class="badge b-during">개장중</span>
         </div>
         <div class="when">
-          업로드 16:20 · 
-          30분 · 
-          <span class="badge ghost">자막없음·제목기반</span>
+          업로드 09:15 · 
+          51분 · 
+          자막 기반
         </div>
         <div class="prose">
           
-          <p>2차전지 섹터의 바닥 논쟁을 다뤘다. 발표자는 최근 수급 지표가 개선되는 신호가 보이지만, 전방 수요 둔화가 지속되고 있어 추세적 반등을 논하기엔 이르다고 평가했다.</p><p>특히 미국 IRA 정책 변화가 최대 변수로, 보조금 축소 시나리오가 현실화되면 밸류에이션 재조정이 불가피하다고 지적했다. 저평가 구간이라는 점은 인정하되 분할 접근을 제안했다.</p>
+          <p>촬영일: 2026. 6. 25.
+
+시장이 오를 때마다
+"지금은 너무 늦었다",
+"버블 아니냐"는 말이 반복됩니다.
+
+그런데 정말 버블이라면
+과거와 같은 신호가 나타나고 있을까요?
+
+김효진 신영증권 박사는
+닷컴버블부터 지금의 AI 시장까지 비교하며
+버블이 끝날 때 나타나는 공통점과
+지금 투자자들이 반드시 확인해야 할 신호를 설명합니다.
+
+✔ 지금 삼성전자·SK하이닉스는 비싼 걸까?
+✔ AI 버블은 정말 끝을 향해 가고 있을까?
+✔ 강세장이 끝날 때 항상 나타났던 마지막 신호는?
+✔ 지금 시장에서 가장 중요한 것은 무엇일까?
+
+월요일 장이 열리기 전,
+한 번쯤 꼭 생각해볼 이야기입니다.
+
+여러분은 지금 시장을 버블이라고 보시나요?
+
+00:00 오프닝
+01:04 버블을 움직이는 것
+02:03 '포모(FOMO)'는 왜 더 강해졌나
+06:31 버블은 왜 계속 생겨나는가
+13:53 AI 버블 vs 닷컴버블
+18:27 버블장에서 가장 중요한 것
+20:08 삼성전자·SK하이닉스 쏠림, 정말 위험한 신호일까
+30:50 SK하이닉스 시총 역전, 고점 신호인가
+33:06 버블의 끝은 어떻게 알 수 있을까
+47:51 버블을 끝내는 마지막 변수
+
+🎤 함께해주신 분
+김효진 신영증권 박사
+
+🎬 만든 사람들
+서동주 미국 변호사 (진행)
+이재상 PD (기획)
+이영철, 박정은 PD (연출)
+
+#머니인더트랩 #머인트 #moneyinthetrap #얘기좀합시다 #김효진 #서동주 #삼성전자 #SK하이닉스 #하이닉스 #반도체 #주식투자 #AI #FOMO #포모</p>
           
         </div>
-        <div class="kv">
-          <h4>핵심 포인트</h4>
-          <ul><li>2차전지 수급 개선 신호</li><li>미국 IRA 정책 변수</li></ul>
-          
-          <div class="fore">📊 시장 전망:
-            <span class="dir down">약세</span>
-            — 수요 둔화 지속</div>
-          <h4>언급 종목</h4>
-          <div class="tags">
-            <span class="tag ">LG에너지솔루션 · 중립</span>
-          </div>
+        
+      </article>
+      
+    </section>
+    
+    <section class="ch" id="ch-5">
+      <div class="chhead">
+        <div class="nm">📺 이효석아카데미</div>
+        <div class="meta">당일 업로드 1개</div>
+        <div class="badges"><span class="badge b-during">개장중</span></div>
+      </div>
+
+      
+      <article class="card vid">
+        <div class="vhead">
+          <h3><a href="https://www.youtube.com/watch?v=uPV-SqAj3Hg" target="_blank">급락후 반등, 반등후 급락 주가가 매일 발칵 뒤집히는 반도체! 앞으로는 '이렇게' 투자 하세요</a></h3>
+          <span class="badge b-during">개장중</span>
         </div>
+        <div class="when">
+          업로드 09:00 · 
+          15분 · 
+          자막 기반
+        </div>
+        <div class="prose">
+          
+          <p>🔍  SK하이닉스 밸류에이션 보러가기
+👉🏻  https://naver.me/5g4kII3q
+
+🔊 이효석 아카데미는 아래 링크에 소개된 공식 채널을 통해서만 여러분과 소통합니다.
+사칭 피해에 각별히 주의해주세요.
+👉🏻 https://linktr.ee/hsacademy_integrity
+
+🎓 [네프콘] 네이버 프리미엄콘텐츠 전체 1위 이효석 아카데미🥇
+바쁜 투자자를 위한 알짜배기 투자 정보 👉🏻 https://bit.ly/45jA33C
+
+✅ [텔레그램] 투자에 도움 되는 생생한 정보 체크 👉🏻 https://bit.ly/44YOM3Y
+✅ 비즈니스/광고/협업 문의 : contact@hs-academy.kr
+
+📆 촬영일 : 07.03
+
+#sk하이닉스 #반도체 #반도체주식 #삼성전자 #메타 #마이크론 #meta #하이닉스 #하닉 #삼전닉스 #hbm #ai</p>
+          
+        </div>
+        
       </article>
       
     </section>

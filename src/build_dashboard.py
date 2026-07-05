@@ -82,6 +82,25 @@ def _paragraphs(text: str) -> list[str]:
     return [p.strip() for p in parts if p.strip()]
 
 
+def _basic_video(v: dict) -> dict:
+    """collect 출력(videos.json) → 템플릿이 기대하는 형태(요약 필드는 비움)."""
+    return {
+        "id": v.get("id"),
+        "channel": v.get("channel"),
+        "title": v.get("title"),
+        "url": v.get("url"),
+        "bucket": v.get("bucket", "during"),
+        "duration": v.get("duration"),
+        "upload_ts": v.get("upload_ts"),
+        "from_subtitle": v.get("has_subtitle", False),
+        "description": (v.get("description") or "").strip(),
+        "상세요약": "",
+        "핵심요약": [],
+        "시장전망": None,
+        "언급종목": [],
+    }
+
+
 def _group_channels(videos: list[dict]) -> list[dict]:
     """config 채널 순서로 그룹화. 영상 없는 채널 제외, 내부는 개장전→중→후 정렬."""
     order = [c["name"] for c in load_channels()]
@@ -111,6 +130,14 @@ def build(date_str: str | None = None) -> Path:
               "is_trading_day": False}
 
     videos = analysis.get("videos", [])
+    no_analysis = False
+    if not videos:
+        # AI 분석 없음 → 수집 결과(제목·설명·시각)로 폴백
+        vpath = ddir / "videos.json"
+        if vpath.exists():
+            videos = [_basic_video(v) for v in read_json(vpath).get("videos", [])]
+            no_analysis = True
+
     buckets = {"pre": [], "during": [], "post": []}
     for v in videos:
         buckets.get(v.get("bucket", "during"), buckets["during"]).append(v)
@@ -139,6 +166,7 @@ def build(date_str: str | None = None) -> Path:
         mentioned=stocks.get("mentioned", []),
         channels=channels,
         video_count=len(videos),
+        no_analysis=no_analysis,
     )
 
     out = output_dir(settings) / f"dashboard_{date_str}.html"
