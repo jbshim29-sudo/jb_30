@@ -1,11 +1,12 @@
 name: 경제 유튜브 대시보드 갱신
 
-# KST 12·14·16·18·20·22시 = UTC 03·05·07·09·11·13시
-# (GitHub Actions cron 은 UTC 기준, 부하에 따라 수 분 지연될 수 있음)
+# [비활성] 정기 실행은 Claude /schedule 클라우드 루틴으로 이관됨(평일 매시간 6~23 KST).
+# 중복 push 충돌 방지를 위해 schedule 트리거를 껐습니다. 필요 시 아래 주석을 해제하세요.
+# on:
+#   schedule:
+#     - cron: "0 3,5,7,9,11,13 * * *"
 on:
-  schedule:
-    - cron: "0 3,5,7,9,11,13 * * *"
-  workflow_dispatch:        # 수동 실행 버튼
+  workflow_dispatch:        # 수동 실행 버튼(백업용)
     inputs:
       run_whisper:
         description: "자막 없는 영상 Whisper 전사 수행"
