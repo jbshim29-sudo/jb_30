@@ -12,6 +12,26 @@ if exist "venv\Scripts\python.exe" (
 
 echo [%date% %time%] 파이프라인 시작
 "%PY%" -m src.pipeline %*
-echo [%date% %time%] 파이프라인 종료 (exit=%errorlevel%)
+set "RC=%errorlevel%"
+echo [%date% %time%] 파이프라인 종료 (exit=%RC%)
 
+REM ── 결과 페이지 자동 커밋/푸시 (Vercel 재배포 트리거) ──
+REM   끄려면:  set AUTO_PUSH=0  후 실행
+if "%AUTO_PUSH%"=="0" goto :done
+if not "%RC%"=="0" goto :done
+where git >nul 2>nul
+if errorlevel 1 goto :done
+
+echo [%date% %time%] 결과 페이지 커밋/푸시 시도
+git add public/index.html
+git diff --cached --quiet
+if errorlevel 1 (
+    git commit -m "update dashboard %date%"
+    git push
+    echo [%date% %time%] 푸시 완료
+) else (
+    echo [%date% %time%] 변경 없음 - 푸시 생략
+)
+
+:done
 endlocal
