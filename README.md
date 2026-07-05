@@ -56,15 +56,33 @@ run.bat
 
 결과: `output/dashboard_<날짜>.html` (기본으로 브라우저 자동 오픈).
 
-## 매일 자동 실행 (작업 스케줄러)
+## 자동 실행 — ⭐ 권장: GitHub Actions (PC를 꺼도 동작)
+
+로컬 작업 스케줄러는 **PC가 켜져 있을 때만** 돕니다. 컴퓨터를 꺼도 갱신하려면
+클라우드에서 도는 **GitHub Actions**를 사용하세요(`.github/workflows/daily.yml`).
+
+- **스케줄:** 매일 KST **12·14·16·18·20·22시** (2시간 간격, 하루 6회).
+  cron 은 UTC 기준이라 `03,05,07,09,11,13`으로 설정되어 있음.
+- 매 실행: 파이프라인 → `public/index.html` 갱신 → 자동 커밋·푸시 → **Vercel 자동 재배포**.
+- **증분 분석:** 데이터 캐시로 같은 날 이전 실행 결과를 재사용, 새로 올라온 영상만 Claude 호출 → 비용 최소화.
+
+**필수 설정 (1회):**
+1. GitHub 저장소 → Settings → Secrets and variables → Actions → **New repository secret**
+   - Name: `ANTHROPIC_API_KEY`, Value: 실제 키
+2. Settings → Actions → General → Workflow permissions → **Read and write permissions** 체크(푸시 허용).
+3. Actions 탭에서 워크플로가 활성화됐는지 확인. 수동 실행은 **Run workflow** 버튼.
+
+> cron은 러너 부하에 따라 수 분 지연될 수 있습니다(정시 보장 아님). Whisper는 CI 속도를 위해 기본 생략(자막 있는 영상만 요약). 수동 실행 시 `run_whisper=true`로 켤 수 있음.
+
+## (선택) 로컬 실행 — 작업 스케줄러
+
+PC가 항상 켜져 있는 환경이면 로컬로도 가능합니다(Actions와 병행 시 커밋 충돌 주의 → 하나만 사용 권장).
 
 ```powershell
 # 관리자 PowerShell
 .\register_task.ps1                 # 매일 16:30
 .\register_task.ps1 -Time "17:00"   # 시간 변경
-
 Get-ScheduledTask -TaskName EconYoutubeDashboard   # 확인
-Start-ScheduledTask -TaskName EconYoutubeDashboard # 수동 트리거
 ```
 
 ## 웹 배포 (Vercel · 정적 호스팅)

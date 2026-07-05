@@ -1,0 +1,78 @@
+name: 경제 유튜브 대시보드 갱신
+
+# KST 12·14·16·18·20·22시 = UTC 03·05·07·09·11·13시
+# (GitHub Actions cron 은 UTC 기준, 부하에 따라 수 분 지연될 수 있음)
+on:
+  schedule:
+    - cron: "0 3,5,7,9,11,13 * * *"
+  workflow_dispatch:        # 수동 실행 버튼
+    inputs:
+      run_whisper:
+        description: "자막 없는 영상 Whisper 전사 수행"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write           # public/index.html 커밋·푸시용
+
+concurrency:
+  group: dashboard-update   # 실행 겹침 방지
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: 의존성 설치
+        run: |
+          pip install -r requirements.txt
+          # Whisper 사용할 때만 ffmpeg 필요
+          if [ "${{ github.event.inputs.run_whisper }}" = "true" ]; then
+            sudo apt-get update && sudo apt-get install -y ffmpeg
+          fi
+
+      # 같은 날 이전 실행의 분석 결과 복원 → 증분 분석(비용 절감)
+      - name: 데이터 캐시 복원
+        uses: actions/cache/restore@v4
+        with:
+          path: data
+          key: data-${{ github.run_id }}
+          restore-keys: |
+            data-
+
+      - name: 파이프라인 실행
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ "${{ github.event.inputs.run_whisper }}" = "true" ]; then
+            python -m src.pipeline
+          else
+            python -m src.pipeline --skip-whisper
+          fi
+
+      - name: 데이터 캐시 저장
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: data
+          key: data-${{ github.run_id }}
+
+      - name: 결과 페이지 커밋·푸시 (Vercel 재배포 트리거)
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add public/index.html
+          if git diff --cached --quiet; then
+            echo "변경 없음 - 푸시 생략"
+          else
+            git commit -m "auto: 대시보드 갱신 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
+            git push
+          fi

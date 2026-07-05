@@ -214,16 +214,39 @@ def analyze(date_str: str | None = None) -> dict:
         write_json(ddir / "analysis.json", result)
         return result
 
-    client = _client()
+    # 증분: 이미 분석된 영상 재사용, 새 영상만 Claude 호출 (2시간마다 실행 시 비용 절감)
+    analysis_path = ddir / "analysis.json"
+    prev = read_json(analysis_path) if analysis_path.exists() else {}
+    done = {s["id"]: s for s in prev.get("videos", [])
+            if s.get("상세요약") and s.get("상세요약") != "(분석 실패)"}
+
+    client = None
     summaries = []
+    new_count = 0
     for v in videos:
+        cached = done.get(v["id"])
+        if cached:
+            summaries.append(cached)
+            continue
+        if client is None:
+            client = _client()
         log.info("분석 %s [%s] %s", v["channel"], v["bucket"], (v["title"] or "")[:40])
         summaries.append(_summarize_video(client, settings, v))
+        new_count += 1
 
-    overall = _overall(client, settings, summaries)
+    log.info("영상 %d개 (신규 분석 %d, 재사용 %d)", len(videos), new_count, len(videos) - new_count)
+
+    # 새 영상이 없고 이전 종합이 있으면 재사용, 아니면 종합 재계산
+    if new_count == 0 and prev.get("overall"):
+        overall = prev["overall"]
+    else:
+        if client is None:
+            client = _client()
+        overall = _overall(client, settings, summaries)
+
     result = {"date": date_str, "videos": summaries, "overall": overall}
-    write_json(ddir / "analysis.json", result)
-    log.info("분석 완료 → %s", ddir / "analysis.json")
+    write_json(analysis_path, result)
+    log.info("분석 완료 → %s", analysis_path)
     return result
 
 
