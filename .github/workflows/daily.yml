@@ -1,12 +1,12 @@
 name: 경제 유튜브 대시보드 갱신
 
-# [비활성] 정기 실행은 Claude /schedule 클라우드 루틴으로 이관됨(평일 매시간 6~23 KST).
-# 중복 push 충돌 방지를 위해 schedule 트리거를 껐습니다. 필요 시 아래 주석을 해제하세요.
-# on:
-#   schedule:
-#     - cron: "0 3,5,7,9,11,13 * * *"
+# 평일(월~금) KST 06~23시 매시간 실행. cron 은 UTC 기준이라 KST 날짜 경계를 넘어
+# 두 줄로 분할: (A) KST 09~23 = UTC 00~14 (월~금), (B) KST 06~08 = UTC 21~23 (일~목).
 on:
-  workflow_dispatch:        # 수동 실행 버튼(백업용)
+  schedule:
+    - cron: "0 0-14 * * 1-5"   # KST 평일 09:00~23:00 매시간
+    - cron: "0 21-23 * * 0-4"  # KST 평일 06:00~08:00 매시간
+  workflow_dispatch:           # 수동 실행 버튼
     inputs:
       run_whisper:
         description: "자막 없는 영상 Whisper 전사 수행"
