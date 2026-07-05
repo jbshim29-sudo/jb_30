@@ -145,6 +145,12 @@ def build(date_str: str | None = None) -> Path:
     out.write_text(html, encoding="utf-8")
     log.info("통합 페이지 생성 → %s", out)
 
+    # Vercel 정적 호스팅용: 최신본을 public/index.html 로 미러링
+    pub = ROOT / "public"
+    pub.mkdir(exist_ok=True)
+    (pub / "index.html").write_text(html, encoding="utf-8")
+    log.info("최신본 미러 → %s", pub / "index.html")
+
     if settings.get("dashboard", {}).get("open_after_build"):
         try:
             webbrowser.open(out.as_uri())

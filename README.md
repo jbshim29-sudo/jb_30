@@ -67,6 +67,25 @@ Get-ScheduledTask -TaskName EconYoutubeDashboard   # 확인
 Start-ScheduledTask -TaskName EconYoutubeDashboard # 수동 트리거
 ```
 
+## 웹 배포 (Vercel · 정적 호스팅)
+
+이 프로젝트는 **웹 서버가 아니라 정적 HTML을 생성하는 배치 파이프라인**입니다.
+Vercel에서 유튜브 수집·Whisper·Claude 분석을 직접 돌릴 수 없으므로(무거운 의존성·API 키·장중 데이터),
+**로컬에서 파이프라인이 생성한 `public/index.html`을 Vercel이 정적으로 호스팅**하는 구조입니다.
+
+- 빌드 시 최신 대시보드가 `public/index.html`로 미러링됩니다.
+- `vercel.json`이 `@vercel/static`으로 정적 배포를 강제 → 파이썬 런타임 감지(엔트리포인트 에러) 회피.
+- Vercel 프로젝트 설정: **Framework Preset = Other**, Build Command/Output 은 `vercel.json`이 처리하므로 비워도 됩니다.
+
+**매일 라이브 갱신 흐름:**
+```
+로컬 스케줄러 → 파이프라인 실행 → public/index.html 갱신 → git commit & push → Vercel 자동 재배포
+```
+자동 커밋·푸시를 원하면 `run.bat` 마지막에 아래를 추가하세요(원격 인증 필요):
+```bat
+git add public/index.html && git commit -m "update %date%" && git push
+```
+
 ## 설정 (`config/settings.yaml`)
 - `market.open/close`: 개장전/중/후 분류 기준 시각
 - `whisper.enabled/model`: 전사 on/off, 정확도(속도 트레이드오프)
