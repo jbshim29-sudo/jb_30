@@ -169,15 +169,12 @@ def build(date_str: str | None = None) -> Path:
         no_analysis=no_analysis,
     )
 
-    out = output_dir(settings) / f"dashboard_{date_str}.html"
-    out.write_text(html, encoding="utf-8")
-    log.info("통합 페이지 생성 → %s", out)
-
-    # Vercel 정적 호스팅용: 최신본을 public/index.html 로 미러링
+    # 단일 URL 산출: public/index.html 하나만 생성(날짜별 파일은 만들지 않음)
     pub = ROOT / "public"
     pub.mkdir(exist_ok=True)
-    (pub / "index.html").write_text(html, encoding="utf-8")
-    log.info("최신본 미러 → %s", pub / "index.html")
+    out = pub / "index.html"
+    out.write_text(html, encoding="utf-8")
+    log.info("페이지 생성(단일 URL) → %s", out)
 
     if settings.get("dashboard", {}).get("open_after_build"):
         try:

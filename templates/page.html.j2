@@ -204,7 +204,7 @@
       <h3><span class="bdot d-{{ b }}"></span>{{ b|blabel }} <span class="sub">({{ buckets[b]|length }})</span></h3>
       {% for v in buckets[b] %}
         <div class="card vidmini">
-          <div class="vt"><a href="{{ v.url }}" target="_blank">{{ v.title }}</a></div>
+          <div class="vt">{{ v.title }}</div>
           {% set dir = v.시장전망.방향 if v.시장전망 else '불명' %}
           <div class="vc">{{ v.channel }}{% if v.핵심요약 or v.시장전망 %} · 전망 {{ dir }}{% endif %}
             {% if not v.from_subtitle %}· <span class="badge ghost">자막없음</span>{% endif %}</div>

@@ -16,8 +16,8 @@ from pathlib import Path
 from yt_dlp import YoutubeDL
 
 from .common import (KST, classify_bucket, cookie_file, data_dir_for,
-                     load_channels, load_settings, log, today_kst_str,
-                     write_json)
+                     load_channels, load_settings, log, read_json,
+                     today_kst_str, write_json)
 
 
 def _channel_videos_url(channel_id: str) -> str:
@@ -180,12 +180,30 @@ def collect(date_str: str | None = None) -> dict:
     subs_dir = ddir / "subs"
     subs_dir.mkdir(exist_ok=True)
 
+    # 증분: 이전 실행에서 이미 자막 확보한 영상은 재다운로드하지 않고 재사용
+    prev_by_id: dict[str, dict] = {}
+    vpath = ddir / "videos.json"
+    if vpath.exists():
+        for v in read_json(vpath).get("videos", []):
+            prev_by_id[v["id"]] = v
+
     all_videos: list[dict] = []
+    reused = 0
     for channel in load_channels():
         vids = _list_today_videos(channel, settings, date_str)
         for v in vids:
-            _download_subtitle(v, subs_dir, settings)
+            prev = prev_by_id.get(v["id"])
+            if prev and prev.get("subtitle_path") and Path(prev["subtitle_path"]).exists():
+                v["has_subtitle"] = True
+                v["subtitle_path"] = prev["subtitle_path"]
+                if prev.get("subtitle_source"):
+                    v["subtitle_source"] = prev["subtitle_source"]
+                reused += 1
+            else:
+                _download_subtitle(v, subs_dir, settings)
         all_videos.extend(vids)
+    if reused:
+        log.info("자막 재사용 %d개(기존 영상), 신규만 다운로드", reused)
 
     payload = {"date": date_str, "count": len(all_videos), "videos": all_videos}
     write_json(ddir / "videos.json", payload)

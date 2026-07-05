@@ -23,49 +23,52 @@ from .common import (data_dir_for, load_settings, log, read_json,
 load_dotenv()
 
 # ── 개별 영상 요약 스키마 (tool 강제) ───────────────────────────────
+# 주의: Anthropic tool input_schema 의 property 키는 ASCII(^[a-zA-Z0-9_.-])만 허용.
+# 따라서 스키마는 영문 키를 쓰고, 응답 후 _remap_video/_remap_overall 에서 한글 필드로 변환.
 VIDEO_TOOL = {
     "name": "record_video_summary",
     "description": "경제 유튜브 영상 1개의 분석 결과를 구조화해 기록",
     "input_schema": {
         "type": "object",
         "properties": {
-            "상세요약": {
+            "detail_summary": {
                 "type": "string",
                 "description": (
                     "영상을 보지 않은 사람도 이 글만 읽으면 내용 전체를 파악할 수 있도록 쓴 "
-                    "A4 약 1장 분량(1,200~1,800자)의 충실한 줄글 요약. "
+                    "A4 약 1장 분량(1,200~1,800자)의 충실한 줄글 요약(한국어). "
                     "①배경·맥락(왜 이 주제인가) ②핵심 주장·논지 ③구체적 근거·수치·데이터 "
                     "④언급 종목별 분석과 논리 ⑤시장 전망 ⑥투자 시사점·리스크 순으로 4~6개 문단 서술. "
                     "각 문단은 빈 줄(\\n\\n)로 구분. 불릿 금지, 진행자의 논리 흐름을 그대로 살린 자연스러운 문장으로."
                 ),
             },
-            "핵심요약": {
+            "key_points": {
                 "type": "array", "items": {"type": "string"},
                 "description": "영상의 핵심 내용 3~5개 불릿 (한국어)",
             },
-            "시장전망": {
+            "market_outlook": {
                 "type": "object",
                 "properties": {
-                    "방향": {"type": "string", "enum": ["강세", "약세", "중립", "혼조", "불명"]},
-                    "근거": {"type": "string"},
+                    "direction": {"type": "string", "enum": ["강세", "약세", "중립", "혼조", "불명"]},
+                    "basis": {"type": "string", "description": "전망 근거(한국어)"},
                 },
-                "required": ["방향", "근거"],
+                "required": ["direction", "basis"],
             },
-            "언급종목": {
+            "mentioned_stocks": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
                         "name": {"type": "string", "description": "정식 종목명(가능한 한 상장사명)"},
-                        "코멘트": {"type": "string"},
-                        "방향성": {"type": "string", "enum": ["긍정", "중립", "부정"]},
+                        "comment": {"type": "string", "description": "해당 종목 코멘트(한국어)"},
+                        "stance": {"type": "string", "enum": ["긍정", "중립", "부정"]},
                     },
-                    "required": ["name", "방향성"],
+                    "required": ["name", "stance"],
                 },
             },
-            "키워드": {"type": "array", "items": {"type": "string"}},
+            "keywords": {"type": "array", "items": {"type": "string"}},
         },
-        "required": ["상세요약", "핵심요약", "시장전망", "언급종목", "키워드"],
+        "required": ["detail_summary", "key_points", "market_outlook",
+                     "mentioned_stocks", "keywords"],
     },
 }
 
@@ -75,27 +78,76 @@ OVERALL_TOOL = {
     "input_schema": {
         "type": "object",
         "properties": {
-            "핵심이슈3줄": {"type": "array", "items": {"type": "string"},
-                          "description": "오늘의 핵심 이슈 3줄 요약"},
-            "컨센서스": {"type": "array", "items": {"type": "string"},
-                       "description": "여러 채널이 공통으로 말하는 시각"},
-            "엇갈리는시각": {"type": "array", "items": {"type": "string"}},
-            "반복언급종목": {
+            "top_issues": {"type": "array", "items": {"type": "string"},
+                           "description": "오늘의 핵심 이슈 3줄 요약(한국어)"},
+            "consensus": {"type": "array", "items": {"type": "string"},
+                          "description": "여러 채널이 공통으로 말하는 시각(한국어)"},
+            "divergences": {"type": "array", "items": {"type": "string"},
+                            "description": "엇갈리는 시각(한국어)"},
+            "repeated_stocks": {
                 "type": "array",
                 "items": {
                     "type": "object",
                     "properties": {
                         "name": {"type": "string"},
                         "count": {"type": "integer"},
-                        "채널": {"type": "array", "items": {"type": "string"}},
+                        "channels": {"type": "array", "items": {"type": "string"}},
                     },
                     "required": ["name", "count"],
                 },
             },
         },
-        "required": ["핵심이슈3줄", "컨센서스", "엇갈리는시각", "반복언급종목"],
+        "required": ["top_issues", "consensus", "divergences", "repeated_stocks"],
     },
 }
+
+
+def _as_list(v) -> list:
+    if isinstance(v, list):
+        return v
+    if v in (None, ""):
+        return []
+    return [v]
+
+
+def _remap_video(d: dict) -> dict:
+    """ASCII 키 응답 → 한글 필드. 모델 출력 형태 변형(문자열 등)에 방어적."""
+    if not isinstance(d, dict):
+        d = {}
+    o = d.get("market_outlook")
+    o = o if isinstance(o, dict) else {}
+    stocks = []
+    for m in _as_list(d.get("mentioned_stocks")):
+        if isinstance(m, dict):
+            stocks.append({"name": m.get("name"), "코멘트": m.get("comment", ""),
+                           "방향성": m.get("stance")})
+        elif isinstance(m, str) and m.strip():
+            stocks.append({"name": m.strip(), "코멘트": "", "방향성": None})
+    return {
+        "상세요약": d.get("detail_summary", "") if isinstance(d.get("detail_summary"), str) else "",
+        "핵심요약": [x for x in _as_list(d.get("key_points")) if isinstance(x, str)],
+        "시장전망": {"방향": o.get("direction", "불명"), "근거": o.get("basis", "")},
+        "언급종목": stocks,
+        "키워드": [x for x in _as_list(d.get("keywords")) if isinstance(x, str)],
+    }
+
+
+def _remap_overall(d: dict) -> dict:
+    if not isinstance(d, dict):
+        d = {}
+    reps = []
+    for r in _as_list(d.get("repeated_stocks")):
+        if isinstance(r, dict):
+            reps.append({"name": r.get("name"), "count": r.get("count", 0),
+                         "채널": _as_list(r.get("channels"))})
+        elif isinstance(r, str) and r.strip():
+            reps.append({"name": r.strip(), "count": 1, "채널": []})
+    return {
+        "핵심이슈3줄": [x for x in _as_list(d.get("top_issues")) if isinstance(x, str)],
+        "컨센서스": [x for x in _as_list(d.get("consensus")) if isinstance(x, str)],
+        "엇갈리는시각": [x for x in _as_list(d.get("divergences")) if isinstance(x, str)],
+        "반복언급종목": reps,
+    }
 
 
 def _client():
@@ -154,8 +206,9 @@ def _summarize_video(client, settings, video: dict) -> dict:
     )
     user = f"채널: {video['channel']}\n제목: {video['title']}\n\n[본문]\n{body}"
     try:
-        data = _call_tool(client, model, max_tokens, VIDEO_TOOL,
-                          "record_video_summary", system, user)
+        raw = _call_tool(client, model, max_tokens, VIDEO_TOOL,
+                         "record_video_summary", system, user)
+        data = _remap_video(raw)
     except Exception as e:  # noqa: BLE001
         log.warning("영상 요약 실패 %s: %s", video["id"], e)
         data = {"상세요약": "(분석 실패)", "핵심요약": ["(분석 실패)"],
@@ -191,8 +244,8 @@ def _overall(client, settings, summaries: list[dict]) -> dict:
     )
     user = "당일 채널별 요약(JSON):\n" + json.dumps(compact, ensure_ascii=False)
     try:
-        return _call_tool(client, model, max_tokens, OVERALL_TOOL,
-                          "record_overall", system, user)
+        return _remap_overall(_call_tool(client, model, max_tokens, OVERALL_TOOL,
+                                         "record_overall", system, user))
     except Exception as e:  # noqa: BLE001
         log.warning("종합 분석 실패: %s", e)
         return {"핵심이슈3줄": [], "컨센서스": [], "엇갈리는시각": [], "반복언급종목": []}
