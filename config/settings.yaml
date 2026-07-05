@@ -13,6 +13,9 @@ youtube:
   subtitle_langs: ["ko"]
   # 최근 영상 없을 때 폴백: 최근 N시간 이내 업로드까지 포함 (0=당일만 엄격)
   fallback_hours: 0
+  # yt-dlp 쿠키 파일 경로(Netscape 형식). 클라우드(GitHub) IP의 봇 차단 우회용.
+  # 로컬 실행 시 여기에 경로 지정 가능. CI에서는 환경변수 YT_COOKIES_FILE 가 우선.
+  cookies_file: null
 
 # Whisper (자막 없는 영상 전사)
 whisper:

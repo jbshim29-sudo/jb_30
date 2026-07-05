@@ -49,6 +49,18 @@ jobs:
           restore-keys: |
             data-
 
+      - name: 쿠키 파일 준비 (YouTube 봇 차단 우회, 있으면)
+        env:
+          YT_COOKIES: ${{ secrets.YT_COOKIES }}
+        run: |
+          if [ -n "$YT_COOKIES" ]; then
+            printf '%s' "$YT_COOKIES" > cookies.txt
+            echo "YT_COOKIES_FILE=cookies.txt" >> "$GITHUB_ENV"
+            echo "쿠키 파일 생성됨 ($(wc -l < cookies.txt) 줄)"
+          else
+            echo "YT_COOKIES 시크릿 없음 - 쿠키 없이 진행(클라우드에서 영상 수집 차단될 수 있음)"
+          fi
+
       - name: 파이프라인 실행
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

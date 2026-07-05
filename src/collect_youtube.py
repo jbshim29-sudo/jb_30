@@ -15,8 +15,9 @@ from pathlib import Path
 
 from yt_dlp import YoutubeDL
 
-from .common import (KST, classify_bucket, data_dir_for, load_channels,
-                     load_settings, log, today_kst_str, write_json)
+from .common import (KST, classify_bucket, cookie_file, data_dir_for,
+                     load_channels, load_settings, log, today_kst_str,
+                     write_json)
 
 
 def _channel_videos_url(channel_id: str) -> str:
@@ -87,6 +88,9 @@ def _list_today_videos(channel: dict, settings: dict, today: str) -> list[dict]:
         "ignoreerrors": True,
         "skip_download": True,
     }
+    cf = cookie_file(settings)
+    if cf:
+        ydl_opts["cookiefile"] = cf
     results: list[dict] = []
     log.info("[%s] 영상 목록 조회: %s", channel["name"], url)
     try:
@@ -136,6 +140,9 @@ def _download_subtitle(video: dict, subs_dir: Path, settings: dict) -> None:
         "outtmpl": outtmpl,
         "ignoreerrors": True,
     }
+    cf = cookie_file(settings)
+    if cf:
+        ydl_opts["cookiefile"] = cf
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([video["url"]])

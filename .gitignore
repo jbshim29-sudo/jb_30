@@ -6,3 +6,5 @@ data/
 output/
 whisper_models/
 audio_tmp/
+cookies.txt
+*.cookies.txt

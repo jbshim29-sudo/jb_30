@@ -43,6 +43,17 @@ def load_channels() -> list[dict[str, Any]]:
     return [c for c in data.get("channels", []) if c.get("enabled", True)]
 
 
+def cookie_file(settings: dict) -> str | None:
+    """yt-dlp 용 쿠키 파일 경로. 환경변수 YT_COOKIES_FILE 우선, 없으면 설정값.
+
+    존재하는 파일일 때만 경로 반환(없으면 None → 쿠키 없이 진행).
+    """
+    p = os.getenv("YT_COOKIES_FILE") or (settings.get("youtube", {}) or {}).get("cookies_file")
+    if p and Path(p).exists():
+        return p
+    return None
+
+
 def now_kst() -> datetime:
     return datetime.now(KST)
 

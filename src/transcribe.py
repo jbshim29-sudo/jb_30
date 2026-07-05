@@ -11,7 +11,7 @@ from pathlib import Path
 
 from yt_dlp import YoutubeDL
 
-from .common import (data_dir_for, load_settings, log, read_json,
+from .common import (cookie_file, data_dir_for, load_settings, log, read_json,
                      today_kst_str, write_json)
 
 
@@ -19,7 +19,7 @@ def _ffmpeg_available() -> bool:
     return shutil.which("ffmpeg") is not None
 
 
-def _download_audio(url: str, out_dir: Path, vid: str) -> Path | None:
+def _download_audio(url: str, out_dir: Path, vid: str, cf: str | None = None) -> Path | None:
     """bestaudio 다운로드 → m4a/webm. 경로 반환."""
     outtmpl = str(out_dir / f"{vid}.%(ext)s")
     ydl_opts = {
@@ -29,6 +29,8 @@ def _download_audio(url: str, out_dir: Path, vid: str) -> Path | None:
         "outtmpl": outtmpl,
         "ignoreerrors": True,
     }
+    if cf:
+        ydl_opts["cookiefile"] = cf
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
@@ -81,7 +83,7 @@ def transcribe(date_str: str | None = None) -> dict:
         if dur and dur > max_dur:
             log.info("길이 초과(%ds>%ds) 전사 생략 %s", dur, max_dur, v["id"])
             continue
-        audio = _download_audio(v["url"], audio_dir, v["id"])
+        audio = _download_audio(v["url"], audio_dir, v["id"], cookie_file(settings))
         if not audio:
             continue
         if model is None:
