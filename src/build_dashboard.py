@@ -11,7 +11,7 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 from .common import (BUCKET_LABELS, ROOT, data_dir_for, load_channels,
-                     load_settings, log, output_dir, read_json, today_kst_str)
+                     load_settings, log, read_json, today_kst_str)
 
 _BORDER = {"pre": 0, "during": 1, "post": 2}
 
