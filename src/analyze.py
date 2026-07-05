@@ -29,6 +29,15 @@ VIDEO_TOOL = {
     "input_schema": {
         "type": "object",
         "properties": {
+            "상세요약": {
+                "type": "string",
+                "description": (
+                    "영상을 보지 않은 사람도 이 글만 읽으면 내용을 한 번에 이해할 수 있도록 쓴 "
+                    "1~2페이지 분량(약 500~900자)의 읽기 쉬운 줄글 요약. "
+                    "배경/맥락 → 핵심 주장 → 근거·데이터 → 시장 전망 → 투자 시사점 흐름으로 서술. "
+                    "문단은 빈 줄(\\n\\n)로 구분. 불릿이 아닌 자연스러운 문장으로."
+                ),
+            },
             "핵심요약": {
                 "type": "array", "items": {"type": "string"},
                 "description": "영상의 핵심 내용 3~5개 불릿 (한국어)",
@@ -55,7 +64,7 @@ VIDEO_TOOL = {
             },
             "키워드": {"type": "array", "items": {"type": "string"}},
         },
-        "required": ["핵심요약", "시장전망", "언급종목", "키워드"],
+        "required": ["상세요약", "핵심요약", "시장전망", "언급종목", "키워드"],
     },
 }
 
@@ -138,6 +147,8 @@ def _summarize_video(client, settings, video: dict) -> dict:
     system = (
         "당신은 한국 주식시장 전문 애널리스트입니다. 아래 경제 유튜브 영상의 "
         "내용을 분석해 record_video_summary 도구로 구조화해 기록하세요. "
+        "특히 '상세요약'은 영상을 못 본 사람도 이 글만 읽으면 핵심을 한 번에 파악할 수 있도록 "
+        "자연스러운 줄글로 충실히 작성하세요(불릿 금지, 문단 구분). "
         "종목명은 가능한 한 정식 상장사명으로 정규화하고, 근거 없는 추측은 피하세요."
     )
     user = f"채널: {video['channel']}\n제목: {video['title']}\n\n[본문]\n{body}"
@@ -146,8 +157,8 @@ def _summarize_video(client, settings, video: dict) -> dict:
                           "record_video_summary", system, user)
     except Exception as e:  # noqa: BLE001
         log.warning("영상 요약 실패 %s: %s", video["id"], e)
-        data = {"핵심요약": ["(분석 실패)"], "시장전망": {"방향": "불명", "근거": ""},
-                "언급종목": [], "키워드": []}
+        data = {"상세요약": "(분석 실패)", "핵심요약": ["(분석 실패)"],
+                "시장전망": {"방향": "불명", "근거": ""}, "언급종목": [], "키워드": []}
     return {
         "id": video["id"],
         "channel": video["channel"],
