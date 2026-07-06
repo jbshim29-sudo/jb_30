@@ -1,12 +1,11 @@
 name: 경제 유튜브 대시보드 갱신
 
-# 평일(월~금) KST 06~22시 2시간마다 실행. cron 은 UTC 기준이라 KST 날짜 경계를 넘어
-# 두 줄로 분할: (A) KST 10~22 = UTC 01~13 (월~금), (B) KST 06,08 = UTC 21,23 (일~목).
+# 평일(월~금) KST 18시·22시 하루 2번 실행(장마감 후). cron 은 UTC 기준.
+# KST 18:00 = UTC 09:00, KST 22:00 = UTC 13:00 (같은 날, 날짜 경계 안 넘음).
 on:
   schedule:
-    - cron: "0 1,3,5,7,9,11,13 * * 1-5"  # KST 평일 10·12·14·16·18·20·22시
-    - cron: "0 21,23 * * 0-4"            # KST 평일 06·08시
-  workflow_dispatch:                     # 수동 실행 버튼
+    - cron: "0 9,13 * * 1-5"   # KST 평일 18:00, 22:00
+  workflow_dispatch:           # 수동 실행 버튼
     inputs:
       run_whisper:
         description: "자막 없는 영상 Whisper 전사 수행"
