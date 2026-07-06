@@ -40,14 +40,9 @@ jobs:
             sudo apt-get update && sudo apt-get install -y ffmpeg
           fi
 
-      # 같은 날 이전 실행의 분석 결과 복원 → 증분 분석(비용 절감)
-      - name: 데이터 캐시 복원
-        uses: actions/cache/restore@v4
-        with:
-          path: data
-          key: data-${{ github.run_id }}
-          restore-keys: |
-            data-
+      # 하이브리드: 저장소에 커밋된 data/<date>/analysis.json 을 그대로 사용(체크아웃됨).
+      # 로컬(집 IP)에서 만든 '깊은 분석'을 재사용하고, 새 영상만 얕게 분석 → 클라우드가
+      # 로컬 결과를 덮어쓰지 않음. (별도 캐시 불필요)
 
       - name: 쿠키 파일 준비 (YouTube 봇 차단 우회, 있으면)
         env:
@@ -71,21 +66,16 @@ jobs:
             python -m src.pipeline --skip-whisper
           fi
 
-      - name: 데이터 캐시 저장
-        if: always()
-        uses: actions/cache/save@v4
-        with:
-          path: data
-          key: data-${{ github.run_id }}
-
-      - name: 결과 페이지 커밋·푸시 (Vercel 재배포 트리거)
+      - name: 결과 커밋·푸시 (Vercel 재배포 트리거)
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git add public/index.html
+          git add public/index.html data/*/analysis.json 2>/dev/null || git add public/index.html
           if git diff --cached --quiet; then
             echo "변경 없음 - 푸시 생략"
           else
             git commit -m "auto: 대시보드 갱신 $(TZ=Asia/Seoul date '+%Y-%m-%d %H:%M KST')"
+            # 로컬/다른 실행이 먼저 푸시했을 수 있으니 rebase 후 푸시(충돌 방지)
+            git pull --rebase origin main || true
             git push
           fi

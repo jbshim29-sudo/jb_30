@@ -22,11 +22,12 @@ if not "%RC%"=="0" goto :done
 where git >nul 2>nul
 if errorlevel 1 goto :done
 
-echo [%date% %time%] 결과 페이지 커밋/푸시 시도
-git add public/index.html
+echo [%date% %time%] 결과 커밋/푸시 시도 (로컬 딥분석 반영)
+git add public/index.html data/*/analysis.json
 git diff --cached --quiet
 if errorlevel 1 (
-    git commit -m "update dashboard %date%"
+    git commit -m "local: 딥분석 갱신 %date%"
+    git pull --rebase origin main
     git push
     echo [%date% %time%] 푸시 완료
 ) else (

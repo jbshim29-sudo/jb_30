@@ -2,7 +2,11 @@
 venv/
 __pycache__/
 *.pyc
-data/
+# data: analysis.json 만 추적(하이브리드 - 로컬 딥분석을 클라우드가 재사용). 나머지 제외
+data/*
+!data/*/
+data/*/*
+!data/*/analysis.json
 output/
 whisper_models/
 audio_tmp/
