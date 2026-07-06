@@ -19,11 +19,12 @@ from collections import Counter, defaultdict
 import requests
 from bs4 import BeautifulSoup
 
-from .common import (data_dir_for, load_settings, log, now_kst, read_json,
-                     today_kst_str, write_json)
+from .common import (ROOT, data_dir_for, load_settings, log, now_kst,
+                     read_json, today_kst_str, write_json)
 
 HEADERS = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36"}
 INDEX_API = "https://m.stock.naver.com/api/index/{}/basic"
+FLOW_API = "https://m.stock.naver.com/api/index/{}/trend"
 MARKET_SUM = "https://finance.naver.com/sise/sise_market_sum.naver?sosok={sosok}&page={page}"
 SOSOK = {"KOSPI": 0, "KOSDAQ": 1}
 
@@ -44,17 +45,39 @@ def _num(s: str | None) -> float | None:
         return None
 
 
+def _get_json(url: str, timeout: int, tries: int = 3):
+    """일시적 실패 대비 재시도 GET → JSON. 전부 실패 시 None."""
+    for _ in range(tries):
+        try:
+            return requests.get(url, headers=HEADERS, timeout=timeout).json()
+        except Exception:  # noqa: BLE001
+            continue
+    return None
+
+
 def _get_index(idx: str, timeout: int) -> dict:
     """지수 종가 + 등락률(부호 포함)."""
-    try:
-        j = requests.get(INDEX_API.format(idx), headers=HEADERS, timeout=timeout).json()
-    except Exception as e:  # noqa: BLE001
-        log.warning("지수 %s 조회 실패: %s", idx, e)
+    j = _get_json(INDEX_API.format(idx), timeout)
+    if j is None:
+        log.warning("지수 %s 조회 실패(재시도 후)", idx)
         return {"close": None, "change_pct": None}
     close = _num(j.get("closePrice"))
     # fluctuationsRatio 는 이미 부호 포함(하락 시 음수) → 그대로 사용. 별도 부호 반전 금지.
     ratio = _num(j.get("fluctuationsRatio"))
     return {"close": close, "change_pct": ratio}
+
+
+def _get_flow(idx: str, timeout: int) -> dict:
+    """지수별 투자자 순매수(개인/외국인/기관, 억원, 부호 포함)."""
+    j = _get_json(FLOW_API.format(idx), timeout)
+    if j is None:
+        log.warning("수급 %s 조회 실패(재시도 후)", idx)
+        return {"개인": None, "외국인": None, "기관": None}
+    return {
+        "개인": _num(j.get("personalValue")),
+        "외국인": _num(j.get("foreignValue")),
+        "기관": _num(j.get("institutionalValue")),
+    }
 
 
 def _parse_market_sum_page(sosok: int, page: int, timeout: int) -> list[dict]:
@@ -193,6 +216,46 @@ def _fundamentals(code: str, settings) -> dict:
     return out
 
 
+def _prev_stocks(date_str: str, settings: dict) -> dict | None:
+    """공란 폴백용: 당일(같은날 이전 실행) 또는 가장 최근 이전 날짜의 stocks.json."""
+    base = ROOT / settings["paths"]["data_dir"]
+    if not base.exists():
+        return None
+    cur = base / date_str / "stocks.json"
+    if cur.exists():
+        try:
+            return read_json(cur)
+        except Exception:  # noqa: BLE001
+            pass
+    dates = sorted((p.name for p in base.iterdir()
+                    if p.is_dir() and (p / "stocks.json").exists()), reverse=True)
+    for dt in dates:
+        if dt != date_str:
+            try:
+                return read_json(base / dt / "stocks.json")
+            except Exception:  # noqa: BLE001
+                continue
+    return None
+
+
+def _fill_blanks(result: dict, prev: dict) -> None:
+    """지수/수급/시총 TOP5 가 비어 있으면 직전 데이터로 채움(공란 방지)."""
+    for mk in ("kospi", "kosdaq"):
+        cur = result["indices"].get(mk, {})
+        old = (prev.get("indices", {}) or {}).get(mk, {}) or {}
+        for key in ("close", "change_pct"):
+            if cur.get(key) is None:
+                cur[key] = old.get(key)
+        cf = cur.setdefault("flow", {})
+        of = old.get("flow", {}) or {}
+        for who in ("개인", "외국인", "기관"):
+            if cf.get(who) is None:
+                cf[who] = of.get(who)
+        result["indices"][mk] = cur
+        if not result["top5"].get(mk):
+            result["top5"][mk] = (prev.get("top5", {}) or {}).get(mk, [])
+
+
 def build_stocks(date_str: str | None = None) -> dict:
     settings = load_settings()
     date_str = date_str or today_kst_str()
@@ -210,8 +273,8 @@ def build_stocks(date_str: str | None = None) -> dict:
         "base_date": base,
         "is_trading_day": weekday < 5,
         "indices": {
-            "kospi": _get_index("KOSPI", timeout),
-            "kosdaq": _get_index("KOSDAQ", timeout),
+            "kospi": {**_get_index("KOSPI", timeout), "flow": _get_flow("KOSPI", timeout)},
+            "kosdaq": {**_get_index("KOSDAQ", timeout), "flow": _get_flow("KOSDAQ", timeout)},
         },
         "top5": {
             "kospi": _top5("KOSPI", n, timeout),
@@ -255,6 +318,11 @@ def build_stocks(date_str: str | None = None) -> dict:
         if code:
             entry.update(_fundamentals(code, settings))
         result["mentioned"].append(entry)
+
+    # 공란 방지: 지수/수급/시총이 비면 직전(당일 또는 어제) 데이터로 채움
+    prev = _prev_stocks(date_str, settings)
+    if prev:
+        _fill_blanks(result, prev)
 
     write_json(ddir / "stocks.json", result)
     log.info("종목 데이터 완료: 언급 %d종목 → %s", len(result["mentioned"]), ddir / "stocks.json")
