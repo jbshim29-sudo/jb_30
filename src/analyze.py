@@ -193,6 +193,16 @@ def _load_transcript(video: dict, settings: dict) -> tuple[str, bool]:
     return fallback, False
 
 
+def _is_fatal_api_error(e: Exception) -> bool:
+    """크레딧 소진/인증 오류 등 재시도 무의미한 계정 레벨 오류."""
+    msg = str(e).lower()
+    return any(k in msg for k in (
+        "credit balance", "too low", "billing",
+        "authentication", "invalid x-api-key", "unauthorized",
+        "permission", "quota",
+    ))
+
+
 def _summarize_video(client, settings, video: dict) -> dict:
     model = settings["claude"]["summary_model"]
     max_tokens = settings["claude"]["max_tokens"]
@@ -210,6 +220,8 @@ def _summarize_video(client, settings, video: dict) -> dict:
                          "record_video_summary", system, user)
         data = _remap_video(raw)
     except Exception as e:  # noqa: BLE001
+        if _is_fatal_api_error(e):
+            raise  # 크레딧/인증 문제 → 상위에서 분석 전체 중단
         log.warning("영상 요약 실패 %s: %s", video["id"], e)
         data = {"상세요약": "(분석 실패)", "핵심요약": ["(분석 실패)"],
                 "시장전망": {"방향": "불명", "근거": ""}, "언급종목": [], "키워드": []}
@@ -284,8 +296,14 @@ def analyze(date_str: str | None = None) -> dict:
         if client is None:
             client = _client()
         log.info("분석 %s [%s] %s", v["channel"], v["bucket"], (v["title"] or "")[:40])
-        summaries.append(_summarize_video(client, settings, v))
-        new_count += 1
+        try:
+            summaries.append(_summarize_video(client, settings, v))
+            new_count += 1
+        except Exception as e:  # noqa: BLE001  (크레딧/인증 등 치명적 오류)
+            log.warning("⚠️ API 크레딧/인증 문제로 분석 중단: %s", e)
+            log.warning("→ 기존 분석 보존, 페이지는 시장데이터+영상목록 모드 유지. "
+                        "console.anthropic.com → Plans & Billing 에서 크레딧 충전 필요")
+            return prev if prev.get("videos") else {"date": date_str, "videos": [], "overall": {}}
 
     log.info("영상 %d개 (신규 분석 %d, 재사용 %d)", len(videos), new_count, len(videos) - new_count)
 
