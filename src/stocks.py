@@ -52,11 +52,8 @@ def _get_index(idx: str, timeout: int) -> dict:
         log.warning("지수 %s 조회 실패: %s", idx, e)
         return {"close": None, "change_pct": None}
     close = _num(j.get("closePrice"))
+    # fluctuationsRatio 는 이미 부호 포함(하락 시 음수) → 그대로 사용. 별도 부호 반전 금지.
     ratio = _num(j.get("fluctuationsRatio"))
-    # 방향 부호: compareToPreviousPrice.code (2=상승, 5=하락)
-    direction = (j.get("compareToPreviousPrice") or {}).get("code")
-    if ratio is not None and direction in ("4", "5"):
-        ratio = -ratio
     return {"close": close, "change_pct": ratio}
 
 
