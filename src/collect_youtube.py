@@ -87,6 +87,10 @@ def _list_today_videos(channel: dict, settings: dict, today: str) -> list[dict]:
         "playlistend": max_scan,
         "ignoreerrors": True,
         "skip_download": True,
+        # 다운로드가 아니라 메타데이터만 필요 → 포맷 확인 실패(클라우드에서 흔함)를
+        # 무시하고 제목/업로드시각만 추출. 이거 없으면 'Requested format is not
+        # available' 로 항목이 통째로 버려져 0개가 됨.
+        "ignore_no_formats_error": True,
     }
     cf = cookie_file(settings)
     if cf:
