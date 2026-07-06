@@ -118,22 +118,60 @@ def _group_channels(videos: list[dict]) -> list[dict]:
     return channels
 
 
+def _pick_content_date(date_str: str, settings: dict) -> str:
+    """리포트에 쓸 날짜: 오늘 분석이 있으면 오늘, 없으면 가장 최근 이전 날짜(어제 등)."""
+    base = ROOT / settings["paths"]["data_dir"]
+
+    def has_videos(dt: str) -> bool:
+        p = base / dt / "analysis.json"
+        if not p.exists():
+            return False
+        try:
+            return len(read_json(p).get("videos", [])) > 0
+        except Exception:  # noqa: BLE001
+            return False
+
+    if has_videos(date_str):
+        return date_str
+    if base.exists():
+        for dt in sorted((p.name for p in base.iterdir() if p.is_dir()), reverse=True):
+            if dt < date_str and has_videos(dt):
+                return dt
+    return date_str
+
+
 def build(date_str: str | None = None) -> Path:
     settings = load_settings()
     date_str = date_str or today_kst_str()
     ddir = data_dir_for(date_str, settings)
+    dbase = ROOT / settings["paths"]["data_dir"]
 
-    analysis = read_json(ddir / "analysis.json") if (ddir / "analysis.json").exists() \
-        else {"videos": [], "overall": {}}
-    stocks = read_json(ddir / "stocks.json") if (ddir / "stocks.json").exists() \
-        else {"indices": {}, "top5": {}, "mentioned": [], "base_date": date_str,
-              "is_trading_day": False}
+    # 리포트(분석)는 최신 분석 날짜에서, 시장데이터는 오늘 것(현재값)에서.
+    content_date = _pick_content_date(date_str, settings)
+    is_prior = content_date != date_str
+    cdir = dbase / content_date
+
+    apath = cdir / "analysis.json"
+    analysis = read_json(apath) if apath.exists() else {"videos": [], "overall": {}}
+
+    # 시장(지수/수급/시총): 오늘 우선(현재 시세), 없으면 리포트 날짜 것
+    if (ddir / "stocks.json").exists():
+        stocks = read_json(ddir / "stocks.json")
+    elif (cdir / "stocks.json").exists():
+        stocks = read_json(cdir / "stocks.json")
+    else:
+        stocks = {"indices": {}, "top5": {}, "mentioned": [], "base_date": date_str,
+                  "is_trading_day": False}
+
+    # 언급종목 테이블은 리포트와 같은 날짜 것으로(일치)
+    c_stocks = read_json(cdir / "stocks.json") if (cdir / "stocks.json").exists() else stocks
+    mentioned = c_stocks.get("mentioned", [])
 
     videos = analysis.get("videos", [])
     no_analysis = False
     if not videos:
-        # AI 분석 없음 → 수집 결과(제목·설명·시각)로 폴백
-        vpath = ddir / "videos.json"
+        # 분석이 전혀 없으면 수집 결과(제목·설명)로 폴백
+        vpath = cdir / "videos.json"
         if vpath.exists():
             videos = [_basic_video(v) for v in read_json(vpath).get("videos", [])]
             no_analysis = True
@@ -163,10 +201,12 @@ def build(date_str: str | None = None) -> Path:
         buckets=buckets,
         bucket_order=["pre", "during", "post"],
         bucket_labels=BUCKET_LABELS,
-        mentioned=stocks.get("mentioned", []),
+        mentioned=mentioned,
         channels=channels,
         video_count=len(videos),
         no_analysis=no_analysis,
+        report_date=content_date,
+        is_prior=is_prior,
     )
 
     # 단일 URL 산출: public/index.html 하나만 생성(날짜별 파일은 만들지 않음)

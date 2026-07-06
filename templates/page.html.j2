@@ -177,6 +177,10 @@
     </div>
   </header>
 
+  {% if is_prior %}
+  <div class="notice">🗓️ 오늘({{ date }}) 분석은 <b>장 마감 후(저녁 18시·22시)</b> 갱신됩니다.
+    아래 채널별 리포트·언급종목은 <b>{{ report_date }} 기준 최신 분석</b>입니다. (상단 지수·수급은 현재 시세)</div>
+  {% endif %}
   {% if no_analysis %}
   <div class="notice">⚠️ <b>AI 분석 미적용 모드</b> — 시장 데이터와 채널별 영상 목록(제목·시각·설명)만 표시됩니다.
     ANTHROPIC_API_KEY를 등록하면 다음 실행부터 영상 요약·전망·언급종목 분석이 자동 활성화됩니다.</div>
