@@ -16,6 +16,9 @@ youtube:
   # yt-dlp 쿠키 파일 경로(Netscape 형식). 클라우드(GitHub) IP의 봇 차단 우회용.
   # 로컬 실행 시 여기에 경로 지정 가능. CI에서는 환경변수 YT_COOKIES_FILE 가 우선.
   cookies_file: null
+  # yt-dlp player_client. 클라우드에서 자막 봇 차단 우회에 도움.
+  # 예: ["default","web_safari","mweb"]. null이면 yt-dlp 기본값.
+  player_clients: ["default", "web_safari", "mweb"]
 
 # Whisper (자막 없는 영상 전사)
 whisper:

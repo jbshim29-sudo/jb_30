@@ -20,6 +20,17 @@ from .common import (KST, classify_bucket, cookie_file, data_dir_for,
                      today_kst_str, write_json)
 
 
+def _apply_yt_opts(opts: dict, settings: dict) -> dict:
+    """쿠키 + player_client 등 공통 yt-dlp 옵션 주입."""
+    cf = cookie_file(settings)
+    if cf:
+        opts["cookiefile"] = cf
+    clients = settings.get("youtube", {}).get("player_clients")
+    if clients:
+        opts["extractor_args"] = {"youtube": {"player_client": list(clients)}}
+    return opts
+
+
 def _channel_videos_url(channel_id: str) -> str:
     """채널ID(UC...) 또는 핸들(@...) → /videos 탭 URL."""
     cid = channel_id.strip()
@@ -92,9 +103,7 @@ def _list_today_videos(channel: dict, settings: dict, today: str) -> list[dict]:
         # available' 로 항목이 통째로 버려져 0개가 됨.
         "ignore_no_formats_error": True,
     }
-    cf = cookie_file(settings)
-    if cf:
-        ydl_opts["cookiefile"] = cf
+    _apply_yt_opts(ydl_opts, settings)
     results: list[dict] = []
     log.info("[%s] 영상 목록 조회: %s", channel["name"], url)
     try:
@@ -143,10 +152,9 @@ def _download_subtitle(video: dict, subs_dir: Path, settings: dict) -> None:
         "subtitlesformat": "vtt",
         "outtmpl": outtmpl,
         "ignoreerrors": True,
+        "ignore_no_formats_error": True,
     }
-    cf = cookie_file(settings)
-    if cf:
-        ydl_opts["cookiefile"] = cf
+    _apply_yt_opts(ydl_opts, settings)
     try:
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([video["url"]])
