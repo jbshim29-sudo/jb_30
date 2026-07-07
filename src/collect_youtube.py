@@ -13,7 +13,11 @@ import re
 from datetime import datetime
 from pathlib import Path
 
+import requests
 from yt_dlp import YoutubeDL
+
+RSS_URL = "https://www.youtube.com/feeds/videos.xml?channel_id={}"
+_RSS_HEADERS = {"User-Agent": "Mozilla/5.0"}
 
 from .common import (KST, classify_bucket, cookie_file, data_dir_for,
                      load_channels, load_settings, log, read_json,
@@ -42,19 +46,45 @@ def _channel_videos_url(channel_id: str) -> str:
     return cid
 
 
-def _parse_upload_ts(entry: dict) -> tuple[str | None, str | None]:
-    """entry에서 업로드 시각을 KST ISO 문자열과 YYYY-MM-DD 로 반환.
+def _rss_times(channel_id: str, timeout: int = 10) -> dict[str, datetime]:
+    """채널 RSS 피드에서 {video_id: 업로드시각(KST datetime)}.
 
-    yt-dlp 는 timestamp(UTC epoch) 또는 upload_date(YYYYMMDD, TZ없음) 제공.
-    timestamp 우선(시분까지 앎) → 장구분 정확도↑.
+    RSS 는 봇 차단이 없어 클라우드(GitHub) IP 에서도 정확한 <published> 시각을 준다.
+    (yt-dlp 는 클라우드에서 timestamp 가 누락돼 전부 자정→개장전으로 몰리는 문제 우회)
     """
+    out: dict[str, datetime] = {}
+    try:
+        r = requests.get(RSS_URL.format(channel_id), headers=_RSS_HEADERS, timeout=timeout)
+    except Exception as e:  # noqa: BLE001
+        log.warning("RSS 조회 실패 %s: %s", channel_id, e)
+        return out
+    for block in r.text.split("<entry>")[1:]:
+        vm = re.search(r"<yt:videoId>([^<]+)", block)
+        pm = re.search(r"<published>([^<]+)", block)
+        if not (vm and pm):
+            continue
+        try:
+            out[vm.group(1)] = datetime.fromisoformat(pm.group(1)).astimezone(KST)
+        except ValueError:
+            continue
+    return out
+
+
+def _parse_upload_ts(entry: dict, rss_times: dict | None = None) -> tuple[str | None, str | None]:
+    """업로드 시각 → (KST ISO, YYYY-MM-DD).
+
+    우선순위: ①RSS <published>(클라우드에서도 정확) ②yt-dlp timestamp ③upload_date(자정).
+    """
+    vid = entry.get("id")
+    if rss_times and vid in rss_times:
+        dt = rss_times[vid]
+        return dt.isoformat(), dt.strftime("%Y-%m-%d")
     ts = entry.get("timestamp")
     if ts:
         dt = datetime.fromtimestamp(ts, tz=KST)
         return dt.isoformat(), dt.strftime("%Y-%m-%d")
     ud = entry.get("upload_date")  # 'YYYYMMDD'
     if ud and len(ud) == 8:
-        # 시각 정보 없음 → 자정 KST 가정(장구분은 'during' 기본으로 흐를 수 있음)
         dt = datetime.strptime(ud, "%Y%m%d").replace(tzinfo=KST)
         return dt.isoformat(), dt.strftime("%Y-%m-%d")
     return None, None
@@ -113,11 +143,15 @@ def _list_today_videos(channel: dict, settings: dict, today: str) -> list[dict]:
         log.warning("[%s] 목록 조회 실패: %s", channel["name"], e)
         return results
 
+    # RSS 로 정확한 업로드 시각 확보(클라우드 timestamp 누락 우회)
+    channel_id = (info or {}).get("channel_id")
+    rss_times = _rss_times(channel_id) if channel_id else {}
+
     entries = (info or {}).get("entries") or []
     for entry in entries:
         if not entry:
             continue
-        iso, ud = _parse_upload_ts(entry)
+        iso, ud = _parse_upload_ts(entry, rss_times)
         if ud != today:
             continue
         vid = entry.get("id")

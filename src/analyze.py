@@ -291,7 +291,8 @@ def analyze(date_str: str | None = None) -> dict:
     for v in videos:
         cached = done.get(v["id"])
         if cached:
-            summaries.append(cached)
+            # 분석 내용은 재사용하되 버킷(개장전/중/후)은 최신 수집값으로 갱신
+            summaries.append({**cached, "bucket": v.get("bucket", cached.get("bucket"))})
             continue
         if client is None:
             client = _client()
