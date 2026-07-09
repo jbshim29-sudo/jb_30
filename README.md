@@ -118,6 +118,28 @@ git add public/index.html && git commit -m "update %date%" && git push
 - `stocks.aliases`: 구어체 종목명 → 정식명 사전
 - `dashboard.open_after_build`: 빌드 후 자동 오픈
 
+## 분석 백엔드 & 비용
+
+`Claude Max 구독`과 `Anthropic API`는 **별개 과금**입니다. 파이프라인은 두 백엔드를 지원합니다.
+
+| 백엔드 | 사용처 | 인증 | 비용 |
+|---|---|---|---|
+| `claude_code` | **로컬**(`run.bat`) — 전체 자막 딥분석 | `claude` CLI (Max 구독 로그인) | **0원** (구독 한도 내) |
+| `api` | **클라우드**(GitHub Actions) — 구독 자격증명 사용 불가 | `ANTHROPIC_API_KEY` | 토큰 종량제 |
+
+- `run.bat`이 자동으로 `ANALYZE_BACKEND=claude_code`를 설정합니다. API로 강제하려면 `set ANALYZE_BACKEND=api`.
+- `claude` CLI가 없으면 자동으로 `api`로 폴백합니다.
+
+**클라우드 비용(실측 기준, 하루 영상 ~28개 · 평일 2회 실행):**
+증분 처리라 영상 1개는 하루 1번만 분석됩니다.
+
+| 설정 | 하루 | 한 달(평일 22일) |
+|---|---|---|
+| 영상별 Haiku + 종합 Opus **(현재)** | 약 780원 | 약 17,000원 |
+| 전부 Opus | 약 2,900원 | 약 63,000원 |
+
+(환율 1,500원 기준. Opus 4.8 = 입력 $5 / 출력 $25 per 1M tokens)
+
 ## 비용 참고
 Opus + 장편 자막 다수는 일일 토큰 비용이 큽니다. 절감 방법:
 - `config/channels.yaml` 에서 일부 채널 `enabled: false`

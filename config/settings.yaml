@@ -31,8 +31,14 @@ whisper:
 
 # Claude 분석
 claude:
-  model: "claude-opus-4-8"        # 고품질 분석
-  summary_model: "claude-opus-4-8" # 개별 요약용 (저비용 원하면 haiku/sonnet 로 분리)
+  # 분석 백엔드: api = Anthropic API(크레딧 과금) / claude_code = claude CLI(Max 구독, 추가비용 0)
+  # 환경변수 ANALYZE_BACKEND 로 덮어쓸 수 있음. run.bat(로컬)은 claude_code 를 사용.
+  # 클라우드(GitHub Actions)는 구독 자격증명을 쓸 수 없으므로 api 사용.
+  backend: "api"
+  claude_code_timeout_sec: 600     # claude CLI 호출당 타임아웃(긴 자막 대비)
+
+  model: "claude-opus-4-8"         # 종합 분석(하루 2회) → 품질 유지
+  summary_model: "claude-haiku-4-5" # 영상별 요약(API 사용 시) → 비용 1/5
   max_tokens: 8000                 # A4 1장 상세요약 수용 (약 1,200~1,800자)
   # 자막 1개 요약 시 입력 상한(문자). 초과 시 map-reduce 청크 분할
   max_transcript_chars: 40000

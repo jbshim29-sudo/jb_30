@@ -10,7 +10,10 @@ if exist "venv\Scripts\python.exe" (
     set "PY=python"
 )
 
-echo [%date% %time%] 파이프라인 시작
+REM 로컬 실행은 Claude Code(Max 구독)로 분석 → API 크레딧 0원.
+REM API 로 강제하려면:  set ANALYZE_BACKEND=api  후 실행
+if not defined ANALYZE_BACKEND set "ANALYZE_BACKEND=claude_code"
+echo [%date% %time%] 파이프라인 시작 (분석 백엔드=%ANALYZE_BACKEND%)
 "%PY%" -m src.pipeline %*
 set "RC=%errorlevel%"
 echo [%date% %time%] 파이프라인 종료 (exit=%RC%)

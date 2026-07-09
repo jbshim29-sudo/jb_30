@@ -13,6 +13,9 @@ from __future__ import annotations
 
 import json
 import os
+import re
+import shutil
+import subprocess
 from pathlib import Path
 
 from dotenv import load_dotenv
@@ -150,6 +153,70 @@ def _remap_overall(d: dict) -> dict:
     }
 
 
+# ── Claude Code(CLI) 백엔드 ────────────────────────────────────────
+# Max 구독으로 동작하는 `claude` CLI 를 헤드리스로 호출 → API 크레딧 소모 0.
+# 클라우드(GitHub Actions)에서는 구독 자격증명을 쓸 수 없으므로 api 백엔드만 가능.
+
+def resolve_backend(settings: dict) -> str:
+    """실제 사용할 분석 백엔드. CLI 없으면 api 로 폴백."""
+    b = os.getenv("ANALYZE_BACKEND") or settings["claude"].get("backend", "api")
+    if b == "claude_code" and not shutil.which("claude"):
+        log.warning("claude CLI 를 찾을 수 없어 api 백엔드로 폴백합니다")
+        return "api"
+    return b
+
+
+def _extract_json(text: str) -> dict:
+    """모델 응답에서 JSON 오브젝트만 추출(코드펜스/앞뒤 잡담 제거)."""
+    t = text.strip()
+    if t.startswith("```"):
+        t = re.sub(r"^```[a-zA-Z]*\s*", "", t)
+        t = re.sub(r"\s*```$", "", t)
+    s, e = t.find("{"), t.rfind("}")
+    if s == -1 or e <= s:
+        raise ValueError(f"JSON 을 찾을 수 없음: {t[:120]}")
+    return json.loads(t[s:e + 1])
+
+
+def _claude_code_json(prompt: str, timeout: int) -> dict:
+    """claude CLI 헤드리스 호출 → 순수 JSON dict. 긴 본문은 stdin 으로 전달."""
+    exe = shutil.which("claude")
+    if not exe:
+        raise RuntimeError("claude CLI 없음")
+    proc = subprocess.run(
+        [exe, "-p", "--output-format", "json"],
+        input=prompt.encode("utf-8"),
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE, timeout=timeout,
+    )
+    if proc.returncode != 0:
+        raise RuntimeError(f"claude CLI 실패({proc.returncode}): "
+                           f"{proc.stderr.decode('utf-8', 'ignore')[:200]}")
+    env = json.loads(proc.stdout.decode("utf-8", "ignore"))
+    if env.get("is_error"):
+        raise RuntimeError(f"claude CLI 오류: {str(env.get('result'))[:200]}")
+    return _extract_json(env.get("result") or "")
+
+
+_VIDEO_SPEC = """오직 아래 스키마의 JSON 객체 하나만 출력하세요. 코드펜스·설명·인사말 금지.
+{
+  "detail_summary": "영상을 못 본 사람도 이 글만 읽으면 내용 전체를 파악할 수 있는 1,200~1,800자 줄글(한국어). ①배경·맥락 ②핵심 주장 ③구체적 근거·수치 ④언급 종목별 분석 ⑤시장 전망 ⑥투자 시사점·리스크 순으로 4~6개 문단. 문단은 빈 줄(\\n\\n)로 구분. 불릿 금지.",
+  "key_points": ["핵심 불릿 3~5개(한국어)"],
+  "market_outlook": {"direction": "강세|약세|중립|혼조|불명", "basis": "근거(한국어)"},
+  "mentioned_stocks": [{"name": "정식 상장사명", "comment": "코멘트", "stance": "긍정|중립|부정"}],
+  "keywords": ["키워드"]
+}
+종목명은 가능한 한 정식 상장사명으로 정규화하고, 근거 없는 추측은 피하세요."""
+
+_OVERALL_SPEC = """오직 아래 스키마의 JSON 객체 하나만 출력하세요. 코드펜스·설명 금지.
+{
+  "top_issues": ["오늘의 핵심 이슈 3줄(한국어)"],
+  "consensus": ["여러 채널이 공통으로 말하는 시각"],
+  "divergences": ["엇갈리는 시각"],
+  "repeated_stocks": [{"name": "종목명", "count": 2, "channels": ["채널명"]}]
+}
+반복 언급 종목은 실제 등장 채널 수로 집계하세요."""
+
+
 def _client():
     key = os.getenv("ANTHROPIC_API_KEY")
     if not key:
@@ -215,9 +282,14 @@ def _summarize_video(client, settings, video: dict) -> dict:
         "종목명은 가능한 한 정식 상장사명으로 정규화하고, 근거 없는 추측은 피하세요."
     )
     user = f"채널: {video['channel']}\n제목: {video['title']}\n\n[본문]\n{body}"
+    backend = resolve_backend(settings)
     try:
-        raw = _call_tool(client, model, max_tokens, VIDEO_TOOL,
-                         "record_video_summary", system, user)
+        if backend == "claude_code":
+            prompt = f"{system}\n\n{_VIDEO_SPEC}\n\n{user}"
+            raw = _claude_code_json(prompt, settings["claude"]["claude_code_timeout_sec"])
+        else:
+            raw = _call_tool(client, model, max_tokens, VIDEO_TOOL,
+                             "record_video_summary", system, user)
         data = _remap_video(raw)
     except Exception as e:  # noqa: BLE001
         if _is_fatal_api_error(e):
@@ -255,7 +327,12 @@ def _overall(client, settings, summaries: list[dict]) -> dict:
         "record_overall 도구로 시장 인사이트를 기록하세요. 반복 언급 종목은 실제 등장 채널 수로 집계하세요."
     )
     user = "당일 채널별 요약(JSON):\n" + json.dumps(compact, ensure_ascii=False)
+    backend = resolve_backend(settings)
     try:
+        if backend == "claude_code":
+            prompt = f"{system}\n\n{_OVERALL_SPEC}\n\n{user}"
+            return _remap_overall(_claude_code_json(
+                prompt, settings["claude"]["claude_code_timeout_sec"]))
         return _remap_overall(_call_tool(client, model, max_tokens, OVERALL_TOOL,
                                          "record_overall", system, user))
     except Exception as e:  # noqa: BLE001
@@ -285,6 +362,10 @@ def analyze(date_str: str | None = None) -> dict:
     done = {s["id"]: s for s in prev.get("videos", [])
             if s.get("상세요약") and s.get("상세요약") != "(분석 실패)"}
 
+    backend = resolve_backend(settings)
+    log.info("분석 백엔드: %s%s", backend,
+             " (Max 구독 - API 비용 0)" if backend == "claude_code" else "")
+
     client = None
     summaries = []
     new_count = 0
@@ -294,7 +375,7 @@ def analyze(date_str: str | None = None) -> dict:
             # 분석 내용은 재사용하되 버킷(개장전/중/후)은 최신 수집값으로 갱신
             summaries.append({**cached, "bucket": v.get("bucket", cached.get("bucket"))})
             continue
-        if client is None:
+        if client is None and backend == "api":
             client = _client()
         log.info("분석 %s [%s] %s", v["channel"], v["bucket"], (v["title"] or "")[:40])
         try:
@@ -312,7 +393,7 @@ def analyze(date_str: str | None = None) -> dict:
     if new_count == 0 and prev.get("overall"):
         overall = prev["overall"]
     else:
-        if client is None:
+        if client is None and backend == "api":
             client = _client()
         overall = _overall(client, settings, summaries)
 

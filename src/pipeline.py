@@ -15,7 +15,7 @@ from dotenv import load_dotenv
 
 from . import analyze as analyze_mod
 from . import build_dashboard, collect_youtube, stocks, transcribe
-from .common import log, target_date_kst
+from .common import load_settings, log, target_date_kst
 
 load_dotenv()
 
@@ -38,8 +38,10 @@ def run(date_str: str | None, skip_whisper: bool, only: str | None) -> None:
     elif "transcribe" in steps:
         log.info("[2/5] Whisper 생략(--skip-whisper)")
     if "analyze" in steps:
-        if os.getenv("ANTHROPIC_API_KEY"):
-            log.info("[3/5] Claude 분석")
+        # claude_code 백엔드(Max 구독)는 API 키가 없어도 분석 가능
+        backend = analyze_mod.resolve_backend(load_settings())
+        if backend == "claude_code" or os.getenv("ANTHROPIC_API_KEY"):
+            log.info("[3/5] Claude 분석 (backend=%s)", backend)
             analyze_mod.analyze(date_str)
         else:
             log.info("[3/5] ANTHROPIC_API_KEY 없음 → AI 분석 생략 "
