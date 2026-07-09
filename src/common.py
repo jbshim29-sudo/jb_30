@@ -62,6 +62,19 @@ def today_kst_str() -> str:
     return now_kst().strftime("%Y-%m-%d")
 
 
+def target_date_kst(early_hour: int = 6) -> str:
+    """파이프라인이 대상으로 삼을 날짜.
+
+    새벽(기본 06시 이전) 실행은 '전날'을 대상으로 한다.
+    GitHub 예약이 몇 시간 지연돼 KST 자정을 넘겨 실행되더라도, 빈 새 날이 아니라
+    원래 의도한 그 날(장 마감된 전날)의 영상을 수집·분석하기 위함.
+    """
+    now = now_kst()
+    if now.hour < early_hour:
+        now = now - timedelta(days=1)
+    return now.strftime("%Y-%m-%d")
+
+
 def data_dir_for(date_str: str, settings: dict) -> Path:
     d = ROOT / settings["paths"]["data_dir"] / date_str
     d.mkdir(parents=True, exist_ok=True)

@@ -15,13 +15,14 @@ from dotenv import load_dotenv
 
 from . import analyze as analyze_mod
 from . import build_dashboard, collect_youtube, stocks, transcribe
-from .common import log, today_kst_str
+from .common import log, target_date_kst
 
 load_dotenv()
 
 
 def run(date_str: str | None, skip_whisper: bool, only: str | None) -> None:
-    date_str = date_str or today_kst_str()
+    # 새벽 실행(예약 지연으로 자정 넘김)은 전날을 대상으로 → 빈 날 분석 방지
+    date_str = date_str or target_date_kst()
     log.info("=== 파이프라인 시작: %s ===", date_str)
 
     steps = ["collect", "transcribe", "analyze", "stocks", "dashboard"]
