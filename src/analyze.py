@@ -371,10 +371,15 @@ def analyze(date_str: str | None = None) -> dict:
     new_count = 0
     for v in videos:
         cached = done.get(v["id"])
-        if cached:
+        # 클라우드가 만든 '제목/설명 기반(얕은)' 요약은, 로컬에서 자막이 확보되면
+        # 자막 기반 '딥분석'으로 업그레이드한다(하이브리드 핵심).
+        upgrade = bool(cached) and v.get("has_subtitle") and not cached.get("from_subtitle")
+        if cached and not upgrade:
             # 분석 내용은 재사용하되 버킷(개장전/중/후)은 최신 수집값으로 갱신
             summaries.append({**cached, "bucket": v.get("bucket", cached.get("bucket"))})
             continue
+        if upgrade:
+            log.info("얕은 요약 → 딥분석 업그레이드: %s", (v["title"] or "")[:35])
         if client is None and backend == "api":
             client = _client()
         log.info("분석 %s [%s] %s", v["channel"], v["bucket"], (v["title"] or "")[:40])
